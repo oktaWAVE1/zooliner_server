@@ -194,7 +194,7 @@ OrderItem.belongsTo(Product)
 Order.hasOne(BonusPointsLog)
 BonusPointsLog.belongsTo(Order)
 
-Category.belongsToMany(Product, {through: 'Product_Category', as: 'product'})
+Category.belongsToMany(Product, {through: '"Product_Category"', as: 'product'})
 Product.belongsToMany(Category, {through: 'Product_Category', as: 'category'})
 
 module.exports = {
