@@ -14,7 +14,7 @@ class TokenService {
             payload,
             process.env.ACCESS_SECRET_KEY,
             {
-                expiresIn: '24h',
+                expiresIn: '24d',
             }
         )
         const refreshToken = jwt.sign(

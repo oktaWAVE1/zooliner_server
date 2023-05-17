@@ -4,6 +4,7 @@ const {DataTypes} = require('sequelize')
 const User = sequelize.define('user', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     email: {type: DataTypes.STRING, unique: true},
+    address: {type: DataTypes.STRING, allowNull: true},
     password: {type: DataTypes.STRING, allowNull: false},
     role: {type: DataTypes.STRING, defaultValue: 'customer', allowNull: false},
     name: {type: DataTypes.STRING, allowNull: false},
@@ -20,20 +21,20 @@ const UserRefreshToken = sequelize.define('user_refresh_token', {
 
 const Basket = sequelize.define('basket', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-
 }, {timestamps: false})
 
 const BasketProduct = sequelize.define('basket_product', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     qty: {type: DataTypes.INTEGER, defaultValue: 1, allowNull: false},
-    price: {type: DataTypes.INTEGER, allowNull: false}
+    status: {type: DataTypes.STRING, allowNull: true},
 })
-
 
 const Order = sequelize.define('order', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    orderNumber: {type: DataTypes.INTEGER, unique: true, allowNull: false},
+    orderNumber: {type: DataTypes.STRING, unique: true, allowNull: false},
+    accessLink: {type: DataTypes.STRING, unique: true, allowNull: false},
     orderAddress: {type: DataTypes.STRING, allowNull: true},
+    customerEmail: {type: DataTypes.STRING, allowNull: true},
     customerName: {type: DataTypes.STRING, allowNull: false},
     customerTel: {type: DataTypes.STRING, allowNull: false},
     salesSum: {type: DataTypes.INTEGER},
@@ -41,9 +42,9 @@ const Order = sequelize.define('order', {
     orderDiscount: {type: DataTypes.FLOAT, allowNull: true},
     discountedSalesSum: {type: DataTypes.INTEGER, allowNull: false},
     extraBonus: {type: DataTypes.FLOAT},
-    accruedBonus: {type: DataTypes.FLOAT, allowNull: false},
-    deliverySum: {type: DataTypes.INTEGER, allowNull: false},
-    status: {type: DataTypes.STRING, allowNull: false, defaultValue: 'Подтвержден покупателем'},
+    accruedBonus: {type: DataTypes.FLOAT, allowNull: true},
+    deliverySum: {type: DataTypes.INTEGER, allowNull: true},
+    status: {type: DataTypes.STRING, allowNull: false, defaultValue: 'Создан'},
     comment: {type: DataTypes.STRING, allowNull: true},
 
 })
@@ -51,10 +52,10 @@ const Order = sequelize.define('order', {
 const OrderItem = sequelize.define( 'order_item', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     price: {type: DataTypes.INTEGER, allowNull: false},
-    discount: {type: DataTypes.FLOAT, allowNull: true},
     discountedPrice: {type: DataTypes.FLOAT, allowNull: true},
     qty: {type: DataTypes.INTEGER, allowNull: false},
-    sum: {type: DataTypes.INTEGER, allowNull: false}
+    sum: {type: DataTypes.INTEGER, allowNull: false},
+    name: {type: DataTypes.STRING, allowNull: false}
 }, {timestamps: false})
 
 const BonusPoint = sequelize.define('bonus_point', {
@@ -97,7 +98,7 @@ const Product = sequelize.define('product', {
     description: {type: DataTypes.TEXT, allowNull: true},
     weight: {type: DataTypes.INTEGER, allowNull: true},
     price: {type: DataTypes.INTEGER, defaultValue: null, allowNull: true},
-    discountPrice: {type: DataTypes.INTEGER, defaultValue: null, allowNull: true},
+    discountedPrice: {type: DataTypes.INTEGER, defaultValue: null, allowNull: true},
     metaTitle: {type: DataTypes.STRING, allowNull: true},
     metaDescription: {type: DataTypes.STRING, allowNull: true},
     indexNumber: {type: DataTypes.INTEGER, allowNull: false, defaultValue: 100000},
@@ -193,6 +194,8 @@ OrderItem.belongsTo(Product)
 
 Order.hasOne(BonusPointsLog)
 BonusPointsLog.belongsTo(Order)
+
+Product.hasMany(Product, {as: "children"})
 
 Category.belongsToMany(Product, {through: '"Product_Category"', as: 'product'})
 Product.belongsToMany(Category, {through: 'Product_Category', as: 'category'})

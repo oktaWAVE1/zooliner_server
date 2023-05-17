@@ -1,9 +1,7 @@
-const {Brand, Category, CategoryImages} = require('../models/models')
+const {Brand} = require('../models/models')
 const ApiError = require('../error/ApiError')
-const {where} = require("sequelize");
 const imageService = require("../service/image-service");
 const path = require("path");
-const fs = require("fs");
 const directory = path.resolve(__dirname, '..', 'static/images/brands')
 const resizeWidth = parseInt(process.env.BRAND_WIDTH)
 

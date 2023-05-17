@@ -1,5 +1,5 @@
 const path = require('path')
-const {Product, ProductImages, Brand, Category} = require('../models/models')
+const {Product, ProductImages, Brand, Category, ProductAttribute, Product_ProductAttribute} = require('../models/models')
 const ApiError = require('../error/ApiError')
 const imageService = require('../service/image-service')
 const resizeWidth = parseInt(process.env.PRODUCT_WIDTH)
@@ -8,10 +8,16 @@ const directory = path.resolve(__dirname, '..', 'static/images/products')
 class ProductController {
     async create (req, res, next) {
         try {
-            let {title, shortDescription, description, weight, price, indexNumber, discountPrice, metaTitle, metaDescription, SKU, published, special, brandId, categoryId} = req.body
-            const {file} = req.files
+            let {title, shortDescription, description, weight, price, indexNumber, discountedPrice, metaTitle, metaDescription, SKU, published, special, brandId, categories, attributes} = req.body
+            let file
+            try {
+                file = req.files.file
+            } catch {
+                console.log("no imgs")
+            }
 
-            await Product.create({title, shortDescription, description, weight, price, indexNumber, discountPrice, metaTitle, metaDescription, SKU, brandId, published, special}).then(async (data) => {
+
+            await Product.create({title, shortDescription, description, weight, price, indexNumber, discountedPrice, metaTitle, metaDescription, SKU, brandId, published, special}).then(async (data) => {
                 if(file) {
                     if(Array.isArray(file)) {
                         file.forEach(async(img) => {
@@ -25,10 +31,22 @@ class ProductController {
                         })()
                     }
                 }
-                if (categoryId){
-                    const product = await Product.findByPk(data.id)
-                    const category = await Category.findByPk(categoryId)
-                    await product.addCategory(category, { through: 'Product_Category' })
+
+                if (categories){
+                    categories = categories.split(";")
+                    for (let i =0; i<categories.length; i++) {
+                        const product = await Product.findByPk(data.id)
+                        const category = await Category.findByPk(categories[i])
+                        await product.addCategory(category, {through: 'Product_Category'})
+                    }
+                }
+                if (attributes){
+                    attributes = attributes.split(";")
+                    for (let i =0; i<attributes.length; i++){
+                        const product = await Product.findByPk(data.id)
+                        const attribute = await ProductAttribute.findByPk(attributes[i])
+                        await product.addProductAttribute(attribute, {through: 'Product_ProductAttribute'})
+                    }
                 }
                 return res.json(data)
             })
@@ -40,26 +58,85 @@ class ProductController {
         }
     }
     async getAll (req, res) {
-        const products = await Product.findAll({include: [{model: Brand, as: 'brand', attributes: ['name']}, {model: Category, as: 'category', attributes: ['name', 'id']}]})
+        const products = await Product.findAll({include: [
+                {model: Brand, as: 'brand', attributes: ['name']},
+                {model: Product, as: 'children'},
+                {model: Category, as: 'category', attributes: ['name', 'id'], through: {attributes: []}},
+                {model: ProductAttribute, as: 'productAttribute', attributes: ['value', 'id'], through: {attributes: []}}
+            ]})
         return res.json(products)
     }
 
     async getPublished (req, res) {
-        const products = await Product.findAll({where: {published: true}, include: [{model: Brand, as: 'brand', attributes: ['name']}, {model: Category, as: 'category', attributes: ['name', 'id']}]})
+        const products = await Product.findAll({where: {published: true}, include: [
+                {model: Brand, as: 'brand', attributes: ['name']},
+                {model: Product, as: 'children'},
+                {model: Category, as: 'category', attributes: ['name', 'id'], through: {attributes: []}},
+                {model: ProductAttribute, as: 'productAttribute', attributes: ['value', 'id'], through: {attributes: []}}
+            ]})
         return res.json(products)
     }
 
 
-    async modify (req, res) {
-        const {title, shortDescription, description, weight, price, indexNumber, discountPrice, metaTitle, metaDescription, special, published, id} = req.body
-        const product = await Product.update({
-                title, shortDescription, description, weight, price, indexNumber, discountPrice, metaTitle, metaDescription, published, special
-            },
-            {
-                where: {id},
-            }
-        )
-        return res.json(product)
+    async modify (req, res, next) {
+        try {
+            const {title, shortDescription, description, weight, price, indexNumber, discountedPrice, metaTitle, metaDescription, special, published, id} = req.body
+            const product = await Product.update({
+                    title, shortDescription, description, weight, price, indexNumber, discountedPrice, metaTitle, metaDescription, published, special
+                },
+                {
+                    where: {id},
+                }
+            )
+            return res.json(product)
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+
+    }
+
+    async addAttribute (req, res, next) {
+        try {
+            const {productId, attributeId} = req.body
+            const product = await Product.findByPk(productId)
+            const attribute = await ProductAttribute.findByPk(attributeId)
+            await product.addProductAttribute(attribute, {through: 'Product_ProductAttribute'})
+            return res.json("Добавлено")
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
+    async delAttribute(req, res, next) {
+        try {
+            const {productId, productAttributeId} = req.body
+            await Product_ProductAttribute.destroy({where: {productId, productAttributeId}})
+            return res.json('Удалено')
+        } catch (e) {
+        next(ApiError.badRequest(e.message))
+    }
+    }
+
+    async addProductCategory (req, res, next) {
+        try {
+            const {productId, categoryId} = req.body
+            const product = await Product.findByPk(productId)
+            const category = await Category.findByPk(categoryId)
+            await product.addProductCategory(category, {through: 'Product_Category'})
+            return res.json("Добавлено")
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
+    async delProductCategory(req, res, next) {
+        try {
+            const {productId, categoryId} = req.body
+            await Product_Category.destroy({where: {productId, categoryId}})
+            return res.json('Удалено')
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
     }
 
     async addImg (req, res, next) {
@@ -111,6 +188,8 @@ class ProductController {
             imgList.forEach(async (img) => {
                 await imageService.delImg(img?.dataValues?.img, directory)
             })
+            await Product_ProductAttribute.destroy({where: {productId: id}})
+            await Product_Category.destroy({where: {productId: id}})
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }

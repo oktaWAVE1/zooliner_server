@@ -4,11 +4,14 @@ const ApiError = require("../error/ApiError");
 
 class BasketController {
 
+
     async get(req, res, next) {
         const {id} = req.body
         const basket = await Basket.findOne({where: {userId: id}})
         console.log(basket)
-        const basketItems = await BasketProduct.findAll({where: {basketId: basket.id}})
+        const basketItems = await BasketProduct.findAll({where: {basketId: basket.id}, include: [
+                {model: Product, as: 'product'},
+              ]})
         return res.json(basketItems)
     }
 
@@ -23,12 +26,7 @@ class BasketController {
                         return res.json('Количество изменено')
 
                     } else {
-                        const product = await Product.findByPk(productId)
-                        if (product?.discountPrice !== 0) {
-                            basketProduct = await BasketProduct.create({basketId, productId, qty, price: product.discountPrice})
-                        } else {
-                            basketProduct = await BasketProduct.create({basketId, productId, qty, price: product.price})
-                        }
+                            basketProduct = await BasketProduct.create({basketId, productId, qty})
                     }
                     return res.json(basketProduct)
                 })
