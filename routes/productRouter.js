@@ -5,6 +5,8 @@ const router = new Router()
 
 router.post('/', checkRole("ADMIN"), productController.create)
 router.get('/', productController.getPublished)
+router.get('/:id', productController.getPublishedProductInCategory)
+router.get('/item/:id', productController.getPublishedProduct)
 router.get('/all', checkRole("ADMIN"), productController.getAll)
 router.put('/', checkRole("ADMIN"), productController.modify)
 router.delete('/', checkRole("ADMIN"), productController.delete)

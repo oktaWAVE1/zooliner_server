@@ -77,6 +77,9 @@ class UserController {
     async check (req, res, next) {
         try {
             const {refreshToken} = req.cookies;
+            if (!refreshToken) {
+                return
+            }
 
             const user = await tokenService.refresh(refreshToken, next)
             if (!user) {
@@ -97,9 +100,10 @@ class UserController {
 
     async getSelf (req, res, next) {
         try {
+            console.log(req.body)
             const {id} = req.body
             const user = await User.findOne({
-                where: {id}, attributes: ['name', 'email', 'telephone', 'id']
+                where: {id}, attributes: ['name', 'email', 'telephone', 'id', 'address']
             })
             return res.json(user)
         } catch (e) {
@@ -121,7 +125,7 @@ class UserController {
 
     async modify (req, res, next) {
         try {
-            const {email, password, name, telephone, id, newPassword} = req.body
+            const {email, password, name, telephone, id, newPassword, address} = req.body
             const user = await User.findOne({where: {id}})
             let comparePassword = bcrypt.compareSync(password, user.password)
             if (!comparePassword) {
@@ -129,9 +133,9 @@ class UserController {
             }
             if (newPassword?.length>=8){
                 const hashPassword = await bcrypt.hash(newPassword, 5)
-                User.update({email, name, telephone, password: hashPassword}, {where: {id}})
+                User.update({email, name, telephone, address, password: hashPassword}, {where: {id}})
             } else if (newPassword?.length===0 || !newPassword){
-                User.update({email, name, telephone}, {where: {id}})
+                User.update({email, name, telephone, address}, {where: {id}})
             } else {
                 return next(ApiError.internal("Указан слишком короткий пароль"))
             }

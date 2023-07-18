@@ -1,5 +1,5 @@
 const path = require('path')
-const {Category, CategoryImages} = require('../models/models')
+const {Category, CategoryImages, Brand, Product} = require('../models/models')
 const ApiError = require('../error/ApiError')
 const fs = require('fs');
 const imageService = require('../service/image-service')
@@ -11,11 +11,11 @@ class CategoryController {
 
     async create (req, res, next) {
         try {
-            let {name, description, published} = req.body
+            let {name, description, ordering, published} = req.body
             const file = req?.files?.file
 
 
-            await Category.create({name, description, published}).then((data) => {
+            await Category.create({name, description, ordering, published}).then((data) => {
                 if(file) {
                     if(Array.isArray(file)) {
                         file.forEach(async(img) => {
@@ -38,20 +38,25 @@ class CategoryController {
         }
     }
     async getAll (req, res) {
-        const categories = await Category.findAll()
+        const categories = await Category.findAll({include: [
+                {model: Category, as: 'children'}
+        ]})
+
         return res.json(categories)
     }
 
     async getPublished (req, res) {
-        const categories = await Category.findAll({where: {published: true}})
+        const categories = await Category.findAll({where: {published: true}, include: [
+                {model: Category, as: 'children'}
+            ]})
         return res.json(categories)
     }
 
 
     async modify (req, res) {
-        const {id, name, description, published} = req.body
+        const {id, name, description, ordering, published} = req.body
         const category = await Category.update({
-                name, description, published
+                name, description, published, ordering
             },
             {
                 where: {id},
