@@ -45,7 +45,7 @@ const Order = sequelize.define('order', {
     accruedBonus: {type: DataTypes.FLOAT, allowNull: true},
     deliverySum: {type: DataTypes.INTEGER, allowNull: true},
     status: {type: DataTypes.STRING, allowNull: false, defaultValue: 'Создан'},
-    comment: {type: DataTypes.STRING, allowNull: true},
+    comment: {type: DataTypes.STRING, allowNull: true, defaultValue: ''},
 
 })
 
@@ -197,7 +197,8 @@ OrderItem.belongsTo(Product)
 Order.hasOne(BonusPointsLog)
 BonusPointsLog.belongsTo(Order)
 
-Product.hasMany(Product, {as: "children"})
+Product.hasMany(Product, {as: "children", foreignKey: "productId"})
+Product.belongsTo(Product, {as: "parent", foreignKey: "productId"})
 
 Category.hasMany(Category, {as: "children"})
 

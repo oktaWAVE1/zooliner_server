@@ -21,7 +21,6 @@ class ProductController {
 
 
             await Product.create({title, shortDescription, description, weight, price, indexNumber, discountedPrice, metaTitle, metaDescription, SKU, brandId, published, special}).then(async (data) => {
-                console.log(data)
                 if(file) {
                     if(Array.isArray(file)) {
                         file.forEach(async(img) => {
@@ -87,9 +86,10 @@ class ProductController {
         const {id} = req.params
         const subCategories = await Category.findAll({where: {categoryId: id}, include: [
             {model: CategoryImages, as: 'category_images'}]})
+        const category = await Category.findByPk(id)
         if (subCategories.length>0) {
 
-            return res.json({subCategories: subCategories})
+            return res.json({subCategories: subCategories, category: category})
         }
         const products = await Product.findAll({where: {published: true}, order: [['indexNumber', 'ASC']], include: [
                 {model: Brand, as: 'brand', attributes: ['name']},
@@ -102,7 +102,7 @@ class ProductController {
             ]})
 
         const filteredItems = filterService.filterItems(products)
-        return res.json({products: products, brands: filteredItems.brands, attributes: filteredItems.attributes})
+        return res.json({products: products, brands: filteredItems.brands, attributes: filteredItems.attributes, category: category})
 
     }
 
@@ -191,16 +191,19 @@ class ProductController {
                     await ProductImages.create({img: fileName, productId} )
 
                 })
-            } else {
+                return res.json('Файлы добавлены')
+            } else if (file){
                 (async () => {
                     const fileName = await imageService.saveImg(file, directory, resizeWidth)
                     await ProductImages.create({img: fileName, productId})
                 })()
+                return res.json('Файлы добавлены')
             }
+        return res.json('Нет файлов')
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }
-        return res.json('Файлы добавлены')
+
     }
 
     async delImg (req, res, next) {

@@ -98,13 +98,26 @@ class UserController {
         }
     }
 
+    async getBonus (req, res, next){
+        try {
+            const {id} = req.body
+            const bonusPoints = await BonusPoint.findOne({
+                where: {userId: id}
+            })
+            return res.json(bonusPoints)
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
     async getSelf (req, res, next) {
         try {
-            console.log(req.body)
             const {id} = req.body
             const user = await User.findOne({
-                where: {id}, attributes: ['name', 'email', 'telephone', 'id', 'address']
+                where: {id}, attributes: ['name', 'email', 'telephone', 'id', 'address'],
+                include: [{model: BonusPoint}]
             })
+            console.log(user)
             return res.json(user)
         } catch (e) {
             next(ApiError.badRequest(e.message))
@@ -115,7 +128,7 @@ class UserController {
     async getAll (req, res, next) {
         try {
             const users = await User.findAll({
-
+                include: [{model: BonusPoint}]
             })
             return res.json(users)
         } catch (e) {

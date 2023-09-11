@@ -5,6 +5,7 @@ const authMiddleware = require("../middleware/AuthMiddleware");
 const userController = require("../controllers/userController");
 
 router.get('/', authMiddleware, basketController.get)
+router.get('/unauthorized', basketController.getUnauthorized)
 router.post('/', authMiddleware, basketController.add)
 router.put('/', authMiddleware, basketController.modify)
 router.delete('/', authMiddleware, basketController.del)

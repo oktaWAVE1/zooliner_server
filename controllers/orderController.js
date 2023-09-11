@@ -1,5 +1,5 @@
 require('dotenv').config()
-const {Product, Order, OrderItem, BasketProduct, Basket, User, PaymentMethod, DeliveryMethod} = require('../models/models')
+const {Product, Order, OrderItem, BasketProduct, Basket, User, PaymentMethod, DeliveryMethod, ProductImages} = require('../models/models')
 const ApiError = require('../error/ApiError')
 const mailService = require("../service/mail-service")
 const bonusService = require("../service/bonus-service")
@@ -13,8 +13,12 @@ class OrderController {
     async getOrder(req, res, next) {
         try {
             const {accessLink} = req.params
-            const order = await Order.findOne({where: {accessLink}, include: [
-                    {model: OrderItem, as: 'orderItems'},
+            const order = await Order.findOne({where: {accessLink: accessLink}, include: [
+                    {model: OrderItem, include: [{model: Product, as: 'product', include: [
+                                {model: ProductImages, as: 'product_images'},
+                                {model: Product, as: 'parent', include: [
+                                        {model: ProductImages, as: 'product_images'}
+                                    ]}]}],}
                 ]})
             return res.json(order)
         } catch (e) {
@@ -44,7 +48,7 @@ class OrderController {
         try {
             const {id} = req.params
             const order = await Order.findByPk(id, {include: [
-                    {model: OrderItem, as: 'orderItems'},
+                    {model: OrderItem, as: 'order_item'},
                 ]})
             return res.json(order)
         } catch (e) {
@@ -120,15 +124,15 @@ class OrderController {
                 accessLink
             }
             ).then(async(order) => {
+                console.log(order)
                 const basketItems = await BasketProduct.findAll({where: {basketId: basket.id}, include: [
                         {model: Product, as: 'product', include: [
-                                {model: Product, as: 'children'}
+                                {model: Product, as: 'parent'}
                             ]},
                     ]})
                 let salesSum = 0
                 let discountSum = 0
                 await basketItems.forEach(async (item, index, array) => {
-                    console.log(item)
                     const sum = item.product.discountedPrice > 0 ? item.product.discountedPrice * item.qty : item.product.price * item.qty
                     await OrderItem.create({
                         productId: item.productId,
@@ -136,7 +140,7 @@ class OrderController {
                         price: item.product.price,
                         discountedPrice: item.product.discountedPrice,
                         qty: item.qty,
-                        name: item.product.productId > 0 ? `${item.product.title}, ${item.product.shortDescription}` : `${item.product.title}, ${item.product.shortDescription}`,
+                        name: item.product.productId > 0 ? `${item.product.parent.title}, ${item.product.parent.shortDescription}, ${item.product.title}` : `${item.product.title}, ${item.product.shortDescription}`,
                         sum
                     })
                     salesSum += item.product.price*item.qty
@@ -144,11 +148,12 @@ class OrderController {
                         discountSum += (item.product.price-item.product.discountedPrice)*item.qty
                     }
                     if(index===array.length-1){
+                        console.log(item)
                         const discountedSalesSum = salesSum-discountSum
                         await Order.update({orderDiscount: discountSum, salesSum, discountedSalesSum}, {where: {id: order.id}})
+                        console.log('мы здесь')
                     }
                 })
-
                 return res.json(order.accessLink)
             })
         } catch (e) {

@@ -74,17 +74,19 @@ class CategoryController {
                     const fileName = await imageService.saveImg(img, directory, resizeWidth)
                     await CategoryImages.create({img: fileName, categoryId} )
                 })
-            } else {
+                    return res.json('Файлы добавлены')
+            } else if(file){
                 (async () => {
                     const fileName = await imageService.saveImg(file, directory, resizeWidth)
                     await CategoryImages.create({img: fileName, categoryId})
-                })()
+                })
+                return res.json('Файлы добавлены')
             }
+            return res.json('Нет файлов')
         } catch (e) {
             next(ApiError.badRequest(e.message))
             return res.json('Ошибка: ' + e.message)
         }
-        return res.json('Файлы добавлены')
     }
 
     async delImg (req, res, next) {
