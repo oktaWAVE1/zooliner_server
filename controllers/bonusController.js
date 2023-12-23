@@ -6,7 +6,7 @@ const ApiError = require("../error/ApiError");
 
 class BonusController {
     async get(req, res, next) {
-        const {userId} = req.body
+        const userId = req.user.id
         const userBonus = await BonusPoint.findOne({where: {userId}})
         return res.json(userBonus)
     }

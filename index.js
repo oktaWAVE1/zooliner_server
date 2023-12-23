@@ -2,6 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const sequelize = require('./db')
+const sequelizeRemote = require('./db_remote')
 const models = require('./models/models')
 const router = require('./routes')
 const path = require("path");
@@ -30,6 +31,10 @@ const start = async () => {
     try{
         await sequelize.authenticate()
         await sequelize.sync()
+        await sequelizeRemote.authenticate()
+        await sequelizeRemote.sync()
+        // const [results, metadata] = await sequelizeRemote.query("SELECT COUNT(*) FROM `products` AS `product` WHERE 1");
+        // console.log(results)
         app.listen(port, () => console.log(`Server's started on port: ${port}`))
     } catch (e) {
         console.log(e)

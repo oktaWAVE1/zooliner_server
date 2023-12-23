@@ -146,6 +146,15 @@ const DeliveryMethod = sequelize.define('delivery_method', {
     minSum: {type: DataTypes.INTEGER, allowNull: true}
 }, {timestamps: false})
 
+const Product_Category = sequelize.define('Product_Category', {
+    productId: {type: DataTypes.INTEGER},
+    categoryId: {type: DataTypes.INTEGER},
+}, {
+    timestamps: false,
+    freezeTableName: true,
+    tableName: `Product_Category`,
+})
+
 User.hasOne(BonusPoint)
 BonusPoint.belongsTo(User)
 
@@ -202,7 +211,7 @@ Product.belongsTo(Product, {as: "parent", foreignKey: "productId"})
 
 Category.hasMany(Category, {as: "children"})
 
-Category.belongsToMany(Product, {through: '"Product_Category"', as: 'product'})
+Category.belongsToMany(Product, {through: 'Product_Category', as: 'product'})
 Product.belongsToMany(Category, {through: 'Product_Category', as: 'category'})
 
 module.exports = {
@@ -223,5 +232,6 @@ module.exports = {
     ProductAttributeCategory,
     ProductAttribute,
     PaymentMethod,
-    DeliveryMethod
+    DeliveryMethod,
+    Product_Category
 }

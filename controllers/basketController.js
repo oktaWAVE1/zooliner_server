@@ -1,4 +1,4 @@
-const {Product, BasketProduct, Basket, ProductImages} = require('../models/models')
+const {Product, BasketProduct, Basket, ProductImages, Order, OrderItem} = require('../models/models')
 const ApiError = require("../error/ApiError");
 
 
@@ -113,6 +113,38 @@ class BasketController {
         }
 
         return res.json('Корзина очищена')
+
+    }
+
+    async copyOrder(req, res, next) {
+        try {
+        const {orderId} = req.params
+        const {userId} = req.body
+        const basket = await Basket.findOne({where: {userId}})
+        await BasketProduct.destroy({where: {basketId: basket.id}})
+        await Order.findOne({where: {id: orderId}, include: [
+                {model: OrderItem, include: [
+                        {model: Product}
+                    ]}
+                ]})
+            .then(async (order) => {
+                console.log(order)
+                if(!order.order_items || order.order_items.length<1) {
+                    next(ApiError.badRequest("Пустой заказ"))
+                }
+                for (let item of order.order_items){
+                    if (item.product.published) {
+                        await BasketProduct.create({basketId: basket.id, productId: item.product.id, qty: item.qty})
+                    }
+                }
+            }
+        )
+
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+
+        return res.json('Заказ продублирован')
 
     }
 

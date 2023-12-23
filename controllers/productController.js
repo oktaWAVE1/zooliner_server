@@ -1,12 +1,14 @@
 const path = require('path')
 const {Product, ProductImages, Brand, Category, CategoryImages, ProductAttribute, Product_ProductAttribute,
-    ProductAttributeCategory
+    ProductAttributeCategory, Product_Category
 } = require('../models/models')
 const ApiError = require('../error/ApiError')
 const imageService = require('../service/image-service')
 const filterService = require('../service/filter-service')
 const resizeWidth = parseInt(process.env.PRODUCT_WIDTH)
 const directory = path.resolve(__dirname, '..', 'static/images/products')
+const {Op} = require('sequelize')
+const {fuseSearch} = require("../service/fuseSearch");
 
 class ProductController {
     async create (req, res, next) {
@@ -72,14 +74,38 @@ class ProductController {
     }
 
     async getPublished (req, res) {
-        const products = await Product.findAll({where: {published: true}, include: [
-                {model: Brand, as: 'brand', attributes: ['name']},
-                {model: Product, as: 'children', where: {published: true}},
+        const products = await Product.findAll({where: {published: true, productId: {[Op.eq]: 0}}, include: [
+                // {model: Brand, as: 'brand', attributes: ['name']},
+                // {model: Product, as: 'children'},
                 {model: Category, as: 'category', attributes: ['name', 'id'], through: {attributes: []}},
-                {model: ProductAttribute, as: 'productAttribute', attributes: ['value', 'id'], through: {attributes: []}},
+                {model: ProductAttribute, as: 'productAttribute', through: {attributes: []},
+                    include: [{model: ProductAttributeCategory, as: 'product_attribute_category', attributes: ['name', 'id']}]
+                },
                 {model: ProductImages, as: 'product_images'}
             ]})
+
         return res.json({products})
+    }
+
+    async getSearchedPublishedProducts (req, res) {
+        const {query} = req.params
+        const searchedProducts = []
+
+        await Product.findAll({where: {published: true, productId: {[Op.eq]: 0}}, order: [['indexNumber', 'ASC']], include: [
+                {model: Brand, as: 'brand', attributes: ['name']},
+                {model: Product, as: 'children'},
+                {model: Category, as: 'category', attributes: ['name', 'id'], through: {attributes: []}},
+                {model: ProductAttribute, as: 'productAttribute', through: {attributes: []},
+                    include: [{model: ProductAttributeCategory, as: 'product_attribute_category', attributes: ['name', 'id']}]
+                },
+                {model: ProductImages, as: 'product_images'}
+            ]}).then(async (products) => {
+            const search = await fuseSearch(products, query)
+            search.forEach(item => searchedProducts.push(item.item))
+        })
+        const filteredItems = filterService.filterItems(searchedProducts)
+        return res.json({products: searchedProducts, brands: filteredItems.brands, attributes: filteredItems.attributes})
+
     }
 
     async getPublishedProductInCategory (req, res) {
@@ -91,7 +117,7 @@ class ProductController {
 
             return res.json({subCategories: subCategories, category: category})
         }
-        const products = await Product.findAll({where: {published: true}, order: [['indexNumber', 'ASC']], include: [
+        const products = await Product.findAll({where: {published: true, productId: {[Op.eq]: 0}}, order: [['indexNumber', 'ASC']], include: [
                 {model: Brand, as: 'brand', attributes: ['name']},
                 {model: Product, as: 'children'},
                 {model: Category, as: 'category', attributes: ['name', 'id'], through: {attributes: []}, where: {id}},

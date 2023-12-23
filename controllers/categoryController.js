@@ -52,7 +52,6 @@ class CategoryController {
         return res.json(categories)
     }
 
-
     async modify (req, res) {
         const {id, name, description, ordering, published} = req.body
         const category = await Category.update({
@@ -107,7 +106,6 @@ class CategoryController {
     async delete (req, res, next) {
         const {id} = req.body
         const imgList = await CategoryImages.findAll({where: {categoryId: id}, attributes: ["img"]})
-
         try {
         imgList.forEach(async (img) => {
             await imageService.delImg(img?.dataValues?.img, directory)
@@ -121,7 +119,6 @@ class CategoryController {
         await Category.destroy({
             where: {id},
         })
-
 
         return res.json('Удалено')
     }

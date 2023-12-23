@@ -60,6 +60,8 @@ class UserController {
             }
             let comparePassword = bcrypt.compareSync(password, user.password)
             if (!comparePassword) {
+                console.debug(user)
+                console.log(password)
                 return next(ApiError.internal("Введен неверный пароль"))
             }
             if(!user.isActivated){
@@ -98,17 +100,6 @@ class UserController {
         }
     }
 
-    async getBonus (req, res, next){
-        try {
-            const {id} = req.body
-            const bonusPoints = await BonusPoint.findOne({
-                where: {userId: id}
-            })
-            return res.json(bonusPoints)
-        } catch (e) {
-            next(ApiError.badRequest(e.message))
-        }
-    }
 
     async getSelf (req, res, next) {
         try {
@@ -117,7 +108,6 @@ class UserController {
                 where: {id}, attributes: ['name', 'email', 'telephone', 'id', 'address'],
                 include: [{model: BonusPoint}]
             })
-            console.log(user)
             return res.json(user)
         } catch (e) {
             next(ApiError.badRequest(e.message))

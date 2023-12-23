@@ -1,0 +1,2 @@
+18.12.2023, 15:58:00 Ошибка: Error: Greeting never received 
+18.12.2023, 15:59:19 Ошибка: Error: self-signed certificate 

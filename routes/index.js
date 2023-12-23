@@ -11,6 +11,7 @@ const attributeRouter = require('./attributeRouter')
 const paymentRouter = require('./paymentRouter')
 const deliveryRouter = require('./deliveryRouter')
 const promotionRouter = require('./promotionRouter')
+const remoteRouter = require('./remoteRouter')
 
 router.use('/user', userRouter)
 router.use('/category', categoryRouter)
@@ -23,6 +24,7 @@ router.use('/attribute', attributeRouter)
 router.use('/payment', paymentRouter)
 router.use('/delivery', deliveryRouter)
 router.use('/promotion', promotionRouter)
+router.use('/remote', remoteRouter)
 
 
 
