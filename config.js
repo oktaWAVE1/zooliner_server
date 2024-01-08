@@ -13,4 +13,11 @@ module.exports = {
         ]
     },
     fuseLimit: 48,
+    orderStatuses: {
+        canceled: "Отменен",
+        created: "Создан",
+        customer_approved: "Подтвержден",
+        approved: "В работе",
+        done: "Выполнен"
+    }
 };

@@ -8,6 +8,7 @@ const bonusService = require("../service/bonus-service")
 const deliveryService = require("../service/delivery-service")
 const uuid = require('uuid')
 const { Op } = require("sequelize");
+const config = require("../config")
 
 
 
@@ -49,10 +50,20 @@ class OrderController {
 
     async getAll (req, res, next) {
         try {
-            const orders = Order.findAll()
+            const orders = await Order.findAll({where: { status: {[Op.notLike]: "Создан"}},
+                order: [['createdAt', 'DESC']],
+                include: [
+                    {model: DeliveryMethod, attributes: ['id', 'name']},
+                    {model: User, attributes: ['id', 'name', 'telephone', 'email', 'address']},
+                    {model: OrderItem, include: [{model: Product, as: 'product', include: [
+                                {model: ProductImages, as: 'product_images'},
+                                {model: Product, as: 'parent', include: [
+                                        {model: ProductImages, as: 'product_images'}
+                                    ]}]}],}
+                ]})
             return res.json(orders)
         } catch (e) {
-            next(ApiError(e.m))
+            next(ApiError(e.message))
         }
     }
     async checkOrder(req, res, next) {
@@ -82,29 +93,36 @@ class OrderController {
                 const deliverySum = await deliveryService.calculateDelivery(deliveryMethodId, discountedSalesSum)
                 const paymentMethod = await PaymentMethod.findByPk(paymentMethodId)
                 const deliveryMethod = await DeliveryMethod.findByPk(deliveryMethodId)
-                await Order.update({status: "Подтвержден покупателем", bonusPointsUsed, paymentMethodId, deliveryMethodId, orderAddress, customerName, customerTel, orderDiscount, accruedBonus, deliverySum, comment}, {where: {id: orderId}}).then(async() => {
+                await Order.update({status: "Подтвержден", bonusPointsUsed, paymentMethodId, deliveryMethodId, orderAddress, customerName, customerTel, orderDiscount, accruedBonus, deliverySum, comment}, {where: {id: orderId}}).then(async() => {
                     await Order.findByPk(orderId, {include: [
                             {model: OrderItem, include: [
                                     {model: Product}
                                 ]},
                         ]}).then(async (order) => {
+                        if(userId){
                             const basket = await Basket.findOne({where: {userId}})
-                            if (basket) {
+                        console.log('***', basket)
+                            if (userId && Object.keys(basket).length>0) {
                                 await BasketProduct.destroy({where: {basketId: basket.id}})
                             }
-                            if (customerEmail){
-                                await mailService.sendOrderToCustomer(customerEmail, order, paymentMethod.name, deliveryMethod.name)
-                            }
-                            await mailService.sendOrderToShop(order, paymentMethod.name, deliveryMethod.name)
-                            if (bonusPointsUsed>0){
+
+                        }
+
+                            if (userId && bonusPointsUsed>0){
                                 await BonusPoint.findOne({where: {userId}}).then(async(BP) => {
                                     let currentQty = Number(BP.currentQty) - bonusPointsUsed
                                     let frozenPoints = Number(BP.frozenPoints) + bonusPointsUsed
                                     BonusPoint.update({currentQty, frozenPoints}, {where: {userId}})
                                     const log = `Списание ${bonusPointsUsed} баллов за заказ ${order.orderNumber}`
-                                    await BonusPointsLog.create({qtyChanges: bonusPointsUsed, orderId, description: log, bonusPointId: BP.id})
+                                    await BonusPointsLog.create({qtyChanges: -(bonusPointsUsed), orderId, description: log, bonusPointId: BP.id})
                                 })
                             }
+
+
+                        await mailService.sendOrderToShop(order, paymentMethod.name, deliveryMethod.name)
+                        if (customerEmail){
+                            await mailService.sendOrderToCustomer(customerEmail, order, paymentMethod.name, deliveryMethod.name)
+                        }
 
                     })
             })
@@ -162,6 +180,7 @@ class OrderController {
                     ]})
                 let salesSum = 0
                 let discountSum = 0
+
                 await basketItems.forEach(async (item, index, array) => {
                     const sum = item.product.discountedPrice > 0 ? item.product.discountedPrice * item.qty : item.product.price * item.qty
                     await OrderItem.create({
@@ -189,22 +208,86 @@ class OrderController {
             next(ApiError.badRequest(e.message))
         }
 
+    }
 
+    async createOrderUnauthorized(req, res, next) {
+        try {
+            const {basket} = req.body
+
+            const accessLink = uuid.v4()
+            let orderNumber = new Date().toISOString()
+            orderNumber = orderNumber.slice(2, 10)+orderNumber.slice(11, 22)
+            orderNumber = orderNumber.replaceAll("-", "").replaceAll(":","").replace(".","")
+
+            await Order.create({
+                    orderAddress: '',
+                    customerName: '',
+                    customerTel: '',
+                    customerEmail: '',
+                    salesSum: 0,
+                    orderDiscount: 0,
+                    discountedSalesSum: 0,
+                    userId: null,
+                    orderNumber,
+                    accessLink
+                }
+            ).then(async(order) => {
+                let salesSum = 0
+                let discountSum = 0
+
+                await basket.forEach(async (b, index, array) => {
+                    const item = await Product.findByPk(b.productId, {include: [{model: Product, as: 'parent'}]})
+                    const sum = item.discountedPrice > 0 ? item.discountedPrice * b.qty : item.price * b.qty
+                    await OrderItem.create({
+                        productId: item.id,
+                        orderId: order.id,
+                        price: item.price,
+                        discountedPrice: item.discountedPrice,
+                        qty: b.qty,
+                        name: item.productId > 0 ? `${item.parent.title}, ${item.parent.shortDescription}, ${item.title}` : `${item.title}, ${item.shortDescription}`,
+                        sum
+                    })
+                    salesSum += item.price*b.qty
+                    if(item.discountedPrice>0){
+                        discountSum += (item.price-item.discountedPrice)*b.qty
+                    }
+                    if(index===array.length-1){
+                        const discountedSalesSum = salesSum-discountSum
+                        await Order.update({orderDiscount: discountSum, salesSum, discountedSalesSum}, {where: {id: order.id}})
+
+                    }
+                })
+                return res.json(order.accessLink)
+            })
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+
+    }
+
+    async getStatuses(req,res) {
+        return res.json(config.orderStatuses)
     }
 
 
     async changeStatus(req, res, next) {
         try {
-            const {id, status} = req.body
+            const {status} = req.body
+            const {id} = req.params
+            if (!Object.values(config.orderStatuses).includes(status)){
+                next(ApiError.badRequest("Статус не существует"))
+            }
             await Order.findByPk(id).then(async(order) => {
-                if (status==="Подтвержден" && order.status==="Подтвержден покупателем" || status==="Подтвержден" && order.status==="Отменен") {
-                    const Description = `Начислено ${order.accruedBonus} бонусов по заказу № ${order.id}`
-                    const userBonus = await bonusService.addPoints(order.userId, order.accruedBonus, Description, order.id)
-                    return res.json(userBonus)
-                } else if (status==="Отменен" && order.status==="Подтвержден") {
-                    const description = `Отмена заказа № ${order.id}`
-                    const userBonus = await bonusService.addPoints(order.userId, -order.accruedBonus, description, order.id)
-                    return res.json(userBonus)
+                if(order?.userId>0){
+                    if (status==="Выполнен" && (order.status==="Подтвержден" || order.status==="В работе" || order.status==="Отменен")) {
+                        const Description = `Начислено ${order.accruedBonus.toFixed(2)} бонусов по заказу № ${order.orderNumber}`
+                        await bonusService.addPoints(order.userId, order.accruedBonus, Description, order.id).catch(e => console.log(e))
+
+                    } else if (status!=="Выполнен" && order.status==="Выполнен") {
+                        const description = `Отмена заказа № ${order.orderNumber}`
+                        await bonusService.addPoints(order.userId, -(order.accruedBonus), description, order.id).catch(e => console.log(e))
+
+                    }
                 }
             })
 

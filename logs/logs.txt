@@ -1,2 +1,62 @@
 18.12.2023, 15:58:00 Ошибка: Error: Greeting never received 
 18.12.2023, 15:59:19 Ошибка: Error: self-signed certificate 
+25.12.2023, 00:04:32 Ошибка: Не авторизован 
+25.12.2023, 00:04:32 Ошибка: Не авторизован 
+25.12.2023, 00:04:32 Ошибка: Не авторизован 
+25.12.2023, 00:04:32 Ошибка: Не авторизован 
+25.12.2023, 00:04:32 Ошибка: Не авторизован 
+25.12.2023, 00:04:32 Ошибка: Не авторизован 
+25.12.2023, 00:04:32 Ошибка: Не авторизован 
+28.12.2023, 15:41:42 Ошибка: Object.value is not a function 
+28.12.2023, 15:41:42 Ошибка: Object.value is not a function 
+28.12.2023, 15:51:53 Ошибка: Object.value is not a function 
+28.12.2023, 15:53:07 Ошибка: Object.value is not a function 
+28.12.2023, 15:54:08 Ошибка: Object.value is not a function 
+28.12.2023, 15:55:05 Ошибка: Object.value is not a function 
+28.12.2023, 15:55:29 Ошибка: Object.value is not a function 
+28.12.2023, 15:56:36 Ошибка: Object.value is not a function 
+28.12.2023, 15:56:36 Ошибка: Object.value is not a function 
+28.12.2023, 15:57:43 Ошибка: Object.values(...).include is not a function 
+28.12.2023, 16:01:44 Ошибка: Cannot set headers after they are sent to the client 
+28.12.2023, 16:01:44 Ошибка: Cannot set headers after they are sent to the client 
+28.12.2023, 16:01:44 Ошибка: Cannot set headers after they are sent to the client 
+28.12.2023, 16:15:37 Ошибка: Cannot set headers after they are sent to the client 
+28.12.2023, 16:15:37 Ошибка: Cannot set headers after they are sent to the client 
+28.12.2023, 16:15:37 Ошибка: Cannot set headers after they are sent to the client 
+28.12.2023, 16:15:37 Ошибка: Cannot set headers after they are sent to the client 
+28.12.2023, 16:17:53 Ошибка: Cannot set headers after they are sent to the client 
+28.12.2023, 16:17:53 Ошибка: Cannot set headers after they are sent to the client 
+28.12.2023, 16:21:02 Ошибка: Cannot set headers after they are sent to the client 
+28.12.2023, 16:21:02 Ошибка: Cannot set headers after they are sent to the client 
+28.12.2023, 16:21:02 Ошибка: Cannot set headers after they are sent to the client 
+28.12.2023, 16:26:21 Ошибка: Cannot set headers after they are sent to the client 
+28.12.2023, 16:26:54 Ошибка: Cannot set headers after they are sent to the client 
+02.01.2024, 20:32:43 Ошибка: WHERE parameter "id" has invalid "undefined" value 
+02.01.2024, 20:32:43 Ошибка: WHERE parameter "id" has invalid "undefined" value 
+02.01.2024, 20:32:43 Ошибка: WHERE parameter "id" has invalid "undefined" value 
+02.01.2024, 20:32:43 Ошибка: WHERE parameter "id" has invalid "undefined" value 
+02.01.2024, 20:40:27 Ошибка: WHERE parameter "id" has invalid "undefined" value 
+02.01.2024, 20:41:39 Ошибка: WHERE parameter "id" has invalid "undefined" value 
+02.01.2024, 20:41:39 Ошибка: WHERE parameter "id" has invalid "undefined" value 
+02.01.2024, 20:43:54 Ошибка: WHERE parameter "id" has invalid "undefined" value 
+02.01.2024, 20:44:44 Ошибка: WHERE parameter "id" has invalid "undefined" value 
+02.01.2024, 21:07:34 Ошибка: Cannot read properties of undefined (reading 'img') 
+03.01.2024, 00:08:15 Ошибка: Не авторизован 
+03.01.2024, 00:08:15 Ошибка: Не авторизован 
+06.01.2024, 17:04:11 Ошибка: Cannot set headers after they are sent to the client 
+06.01.2024, 23:12:34 Ошибка: Cannot destructure property 'productId' of '(intermediate value)' as it is null. 
+06.01.2024, 23:12:34 Ошибка: Cannot destructure property 'productId' of '(intermediate value)' as it is null. 
+06.01.2024, 23:12:34 Ошибка: Cannot destructure property 'productId' of '(intermediate value)' as it is null. 
+07.01.2024, 18:12:15 Ошибка: product.addProductCategory is not a function 
+07.01.2024, 18:12:15 Ошибка: product.addProductCategory is not a function 
+07.01.2024, 18:12:15 Ошибка: product.addProductCategory is not a function 
+07.01.2024, 18:40:15 Ошибка: product.addProductCategory is not a function 
+07.01.2024, 18:41:36 Ошибка: product.addProductCategory is not a function 
+07.01.2024, 18:41:55 Ошибка: product.addProductCategory is not a function 
+08.01.2024, 16:05:08 Ошибка: Cannot read properties of undefined (reading 'destroy') 
+08.01.2024, 16:07:17 Ошибка: Cannot read properties of undefined (reading 'destroy') 
+08.01.2024, 16:07:17 Ошибка: Cannot read properties of undefined (reading 'destroy') 
+08.01.2024, 16:10:05 Ошибка: Cannot read properties of undefined (reading 'destroy') 
+08.01.2024, 16:10:39 Ошибка: Cannot read properties of undefined (reading 'destroy') 
+08.01.2024, 16:13:08 Ошибка: Cannot read properties of undefined (reading 'findOne') 
+08.01.2024, 16:21:21 Ошибка: Cannot read properties of undefined (reading 'destroy') 

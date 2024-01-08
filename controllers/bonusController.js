@@ -1,5 +1,5 @@
 const bonusService = require('../service/bonus-service')
-const {Order, BonusPoint, BonusPointsLog} = require('../models/models')
+const {BonusPoint, BonusPointsLog} = require('../models/models')
 const ApiError = require("../error/ApiError");
 
 
@@ -7,9 +7,12 @@ const ApiError = require("../error/ApiError");
 class BonusController {
     async get(req, res, next) {
         const userId = req.user.id
-        const userBonus = await BonusPoint.findOne({where: {userId}})
+        const userBonus = await BonusPoint.findOne({where: {userId}, include: [
+                {model: BonusPointsLog}
+            ]})
         return res.json(userBonus)
     }
+
 
     async getLogs(req, res, next) {
         const userBonus = await BonusPointsLog.findAll()

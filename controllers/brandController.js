@@ -33,7 +33,7 @@ class BrandController {
     }
 
     async getAll (req, res) {
-        const brands = await Brand.findAll()
+        const brands = await Brand.findAll({order: [['name', 'ASC']]})
         return res.json(brands)
     }
 

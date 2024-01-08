@@ -5,6 +5,7 @@ const categoryController = require('../controllers/categoryController')
 
 router.post('/', checkRole("ADMIN"), categoryController.create)
 router.get('/', categoryController.getPublished)
+router.get('/current/:id', categoryController.getCurrent)
 router.get('/all', checkRole("ADMIN"), categoryController.getAll)
 router.put('/', checkRole("ADMIN"), categoryController.modify)
 router.delete('/', checkRole("ADMIN"), categoryController.delete)

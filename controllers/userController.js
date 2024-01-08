@@ -2,7 +2,7 @@ require('dotenv').config()
 const ApiError = require('../error/ApiError')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
-const {User, Basket, BonusPoint} = require('../models/models')
+const {User, Basket, BonusPoint, BonusPointsLog} = require('../models/models')
 const mailService = require('../service/mail-service')
 const tokenService = require('../service/token-service')
 const UserDto = require("../dtos/user-dto");
@@ -118,7 +118,9 @@ class UserController {
     async getAll (req, res, next) {
         try {
             const users = await User.findAll({
-                include: [{model: BonusPoint}]
+                include: [{model: BonusPoint, include: [
+                        {model: BonusPointsLog}
+                    ]}]
             })
             return res.json(users)
         } catch (e) {

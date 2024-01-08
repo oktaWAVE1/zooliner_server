@@ -1,13 +1,13 @@
 {
-  "name": "server",
-  "version": "1.0.0",
-  "description": "",
+  "name": "zooliner_server",
+  "version": "1.0.4",
+  "description": "Online store backend",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Sergey Kosygin",
   "license": "ISC",
   "dependencies": {
     "@types/express": "^4.17.17",

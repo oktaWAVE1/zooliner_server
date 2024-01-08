@@ -63,18 +63,20 @@ class ProductController {
         }
     }
     async getAll (req, res) {
-        const products = await Product.findAll({include: [
+        const products = await Product.findAll({where: {productId: {[Op.eq]: 0}},
+            order: [['title', 'ASC'], ['shortDescription', 'ASC'], [{model: ProductImages},'master', 'DESC']],
+            include: [
                 {model: Brand, as: 'brand', attributes: ['name']},
-                {model: Product, as: 'children'},
                 {model: Category, as: 'category', attributes: ['name', 'id'], through: {attributes: []}},
-                {model: ProductAttribute, as: 'productAttribute', attributes: ['value', 'id'], through: {attributes: []}},
                 {model: ProductImages, as: 'product_images'}
             ]})
-        return res.json({products})
+
+        return res.json(products)
     }
 
     async getPublished (req, res) {
-        const products = await Product.findAll({where: {published: true, productId: {[Op.eq]: 0}}, include: [
+        const products = await Product.findAll({where: {published: true, hidden: false, productId: {[Op.eq]: 0}}, order: [[{model: ProductImages},'master', 'DESC']],
+            include: [
                 // {model: Brand, as: 'brand', attributes: ['name']},
                 // {model: Product, as: 'children'},
                 {model: Category, as: 'category', attributes: ['name', 'id'], through: {attributes: []}},
@@ -91,7 +93,7 @@ class ProductController {
         const {query} = req.params
         const searchedProducts = []
 
-        await Product.findAll({where: {published: true, productId: {[Op.eq]: 0}}, order: [['indexNumber', 'ASC']], include: [
+        await Product.findAll({where: {published: true, hidden: false, productId: {[Op.eq]: 0}}, order: [['indexNumber', 'ASC'], [{model: ProductImages},'master', 'DESC']], include: [
                 {model: Brand, as: 'brand', attributes: ['name']},
                 {model: Product, as: 'children'},
                 {model: Category, as: 'category', attributes: ['name', 'id'], through: {attributes: []}},
@@ -117,7 +119,7 @@ class ProductController {
 
             return res.json({subCategories: subCategories, category: category})
         }
-        const products = await Product.findAll({where: {published: true, productId: {[Op.eq]: 0}}, order: [['indexNumber', 'ASC']], include: [
+        const products = await Product.findAll({where: {published: true, hidden: false, productId: {[Op.eq]: 0}}, order: [['indexNumber', 'ASC'], [{model: ProductImages},'master', 'DESC']], include: [
                 {model: Brand, as: 'brand', attributes: ['name']},
                 {model: Product, as: 'children'},
                 {model: Category, as: 'category', attributes: ['name', 'id'], through: {attributes: []}, where: {id}},
@@ -135,7 +137,8 @@ class ProductController {
     async getPublishedProduct (req, res) {
         const {id} = req.params
 
-        const product = await Product.findOne({where: {published: true, id}, include: [
+        const product = await Product.findOne({where: {published: true, hidden: false, id}, order: [[{model: ProductImages},'master', 'DESC']],
+                include: [
                 {model: Brand, as: 'brand', attributes: ['name']},
                 {model: Product, as: 'children'},
                 {model: ProductAttribute, as: 'productAttribute', through: {attributes: []}},
@@ -145,18 +148,43 @@ class ProductController {
 
     }
 
+    async getProduct (req, res) {
+        const {id} = req.params
+        const product = await Product.findOne({where: {id}, order: [[{model: ProductImages},'master', 'DESC']],
+            include: [
+                {model: Brand, as: 'brand', attributes: ['name']},
+                {model: Product, as: 'children'},
+                {model: ProductAttribute, as: 'productAttribute', through: {attributes: []}, include:[
+                        {model: ProductAttributeCategory},
+                    ]},
+                {model: ProductImages, as: 'product_images'},
+                {model: Category, as: 'category', include: [
+                        {model: Category, as: 'parent'}
+                    ]}
+            ]})
+        return res.json(product)
+    }
+
+    async updateProductIndex (req, res) {
+        const {id} = req.params
+        const {indexNumber} = req.body
+        await Product.update({indexNumber}, {where: {id}})
+        return res.json("Порядок изменен")
+
+    }
+
 
     async modify (req, res, next) {
         try {
-            const {title, shortDescription, description, weight, price, indexNumber, discountedPrice, metaTitle, metaDescription, special, published, id} = req.body
-            const product = await Product.update({
-                    title, shortDescription, description, weight, price, indexNumber, discountedPrice, metaTitle, metaDescription, published, special
+            const {title, shortDescription, description, weight, price, indexNumber, discountedPrice, hidden, metaTitle, metaDescription, special, published, id} = req.body
+            await Product.update({
+                    title, shortDescription, description, weight, price, indexNumber, discountedPrice, hidden, metaTitle, metaDescription, published, special
                 },
                 {
                     where: {id},
                 }
             )
-            return res.json(product)
+            return res.json("Продукт обновлен")
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }
@@ -165,9 +193,9 @@ class ProductController {
 
     async addAttribute (req, res, next) {
         try {
-            const {productId, attributeId} = req.body
+            const {productId, productAttributeId} = req.body
             const product = await Product.findByPk(productId)
-            const attribute = await ProductAttribute.findByPk(attributeId)
+            const attribute = await ProductAttribute.findByPk(productAttributeId)
             await product.addProductAttribute(attribute, {through: 'Product_ProductAttribute'})
             return res.json("Добавлено")
         } catch (e) {
@@ -177,11 +205,16 @@ class ProductController {
 
     async delAttribute(req, res, next) {
         try {
-            const {productId, productAttributeId} = req.body
+            console.log(1)
+            const {productId, productAttributeId} = req.query
+            console.log(productId)
+            console.log(productAttributeId)
+
             await Product_ProductAttribute.destroy({where: {productId, productAttributeId}})
             return res.json('Удалено')
         } catch (e) {
-        next(ApiError.badRequest(e.message))
+            console.log(e.message)
+            next(ApiError.badRequest(e.message))
     }
     }
 
@@ -189,8 +222,10 @@ class ProductController {
         try {
             const {productId, categoryId} = req.body
             const product = await Product.findByPk(productId)
-            const category = await Category.findByPk(categoryId)
-            await product.addProductCategory(category, {through: 'Product_Category'})
+            await Category.findByPk(categoryId).then(async (category) => {
+                await product.addProductCategory(category, {through: 'Product_Category'})
+            })
+
             return res.json("Добавлено")
         } catch (e) {
             next(ApiError.badRequest(e.message))
@@ -199,9 +234,22 @@ class ProductController {
 
     async delProductCategory(req, res, next) {
         try {
-            const {productId, categoryId} = req.body
+            const {productId, categoryId} = req.query
             await Product_Category.destroy({where: {productId, categoryId}})
             return res.json('Удалено')
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
+    async setMasterImg(req, res, next) {
+        try {
+            const {id} = req.body
+            const {productId} = await ProductImages.findByPk(id)
+            await ProductImages.update({master: false}, {where: {productId}}).then(async () => {
+                await ProductImages.update({master: true}, {where: {id}})
+            })
+            return res.json('Мастер изображение обновлено')
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }
@@ -233,7 +281,7 @@ class ProductController {
     }
 
     async delImg (req, res, next) {
-        const {id} = req.body
+        const {id} = req.query
         const img = await ProductImages.findByPk(id)
         try {
             await imageService.delImg(img?.dataValues?.img, directory)

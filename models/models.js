@@ -96,23 +96,25 @@ const Product = sequelize.define('product', {
     SKU: {type: DataTypes.STRING, unique: true, allowNull: false},
     title: {type: DataTypes.STRING, allowNull: false},
     shortDescription: {type: DataTypes.STRING, allowNull: true},
-    description: {type: DataTypes.TEXT, allowNull: true},
+    description: {type: DataTypes.TEXT, allowNull: true, defaultValue: ''},
     weight: {type: DataTypes.INTEGER, allowNull: true},
     price: {type: DataTypes.FLOAT, defaultValue: null, allowNull: true},
     discountedPrice: {type: DataTypes.INTEGER, defaultValue: null, allowNull: true},
-    metaTitle: {type: DataTypes.STRING, allowNull: true},
-    metaDescription: {type: DataTypes.STRING, allowNull: true},
-    indexNumber: {type: DataTypes.INTEGER, allowNull: false, defaultValue: 100000},
+    metaTitle: {type: DataTypes.STRING, allowNull: true, defaultValue: ''},
+    metaDescription: {type: DataTypes.STRING, allowNull: true, defaultValue: ''},
+    indexNumber: {type: DataTypes.INTEGER, allowNull: false, defaultValue: 9999},
     searchKeys: {type: DataTypes.TEXT, allowNull: true},
     pack: {type: DataTypes.INTEGER, defaultValue: 1},
     special: {type: DataTypes.BOOLEAN, defaultValue: false},
     published: {type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
-    inStock: {type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true}
+    inStock: {type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true},
+    hidden: {type: DataTypes.BOOLEAN, defaultValue: false}
 }, {timestamps: false})
 
 const ProductImages = sequelize.define('product_images', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
-    img: {type: DataTypes.STRING, allowNull: true}
+    img: {type: DataTypes.STRING, allowNull: true},
+    master: {type: DataTypes.BOOLEAN, defaultValue: false}
 }, {timestamps: false})
 
 const Brand = sequelize.define('brand', {
@@ -153,6 +155,15 @@ const Product_Category = sequelize.define('Product_Category', {
     timestamps: false,
     freezeTableName: true,
     tableName: `Product_Category`,
+})
+
+const Product_ProductAttribute = sequelize.define('Product_ProductAttribute', {
+    productId: {type: DataTypes.INTEGER},
+    productAttributeId: {type: DataTypes.INTEGER}
+},{
+    timestamps: false,
+    freezeTableName: true,
+    tableName: 'Product_ProductAttribute'
 })
 
 User.hasOne(BonusPoint)
@@ -209,7 +220,8 @@ BonusPointsLog.belongsTo(Order)
 Product.hasMany(Product, {as: "children", foreignKey: "productId"})
 Product.belongsTo(Product, {as: "parent", foreignKey: "productId"})
 
-Category.hasMany(Category, {as: "children"})
+Category.hasMany(Category, {as: "children", foreignKey: "categoryId"})
+Category.belongsTo(Category, {as: "parent", foreignKey: "categoryId"})
 
 Category.belongsToMany(Product, {through: 'Product_Category', as: 'product'})
 Product.belongsToMany(Category, {through: 'Product_Category', as: 'category'})
@@ -233,5 +245,6 @@ module.exports = {
     ProductAttribute,
     PaymentMethod,
     DeliveryMethod,
-    Product_Category
+    Product_Category,
+    Product_ProductAttribute
 }

@@ -8,7 +8,7 @@ class BonusService {
             const updatedQty = (parseInt(qty) + parseInt(currentBonus.currentQty)) > 0 ?
                 parseInt(qty) + parseInt(currentBonus.currentQty) :
                 0
-            const userBonus = await BonusPoint.update({currentQty: updatedQty}, {where: {userId}})
+            await BonusPoint.update({currentQty: updatedQty}, {where: {userId}})
             const userBonusLog = await BonusPointsLog.create({qtyChanges: qty, description: comment, bonusPointId: currentBonus.id, orderId})
             return userBonusLog
         } catch {
