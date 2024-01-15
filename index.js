@@ -3,12 +3,13 @@ const express = require('express')
 const cors = require('cors')
 const sequelize = require('./db')
 const sequelizeRemote = require('./db_remote')
-const models = require('./models/models')
+const models = require('./models/models')  // import is required to work
 const router = require('./routes')
 const path = require("path");
 const errorHandler = require('./middleware/ErrorHandlingMiddleware')
 const fileUpload = require('express-fileupload')
 const cookieParser = require('cookie-parser')
+const {update} = require('./service/product-update-service')
 
 
 const port = process.env.PORT || 5000
@@ -26,6 +27,7 @@ app.use('/api', router)
 
 app.use(errorHandler)
 
+const productUpdater = setInterval(() => update(2), 1000*60*5)
 
 const start = async () => {
     try{
@@ -33,8 +35,7 @@ const start = async () => {
         await sequelize.sync()
         await sequelizeRemote.authenticate()
         await sequelizeRemote.sync()
-        // const [results, metadata] = await sequelizeRemote.query("SELECT COUNT(*) FROM `products` AS `product` WHERE 1");
-        // console.log(results)
+
         app.listen(port, () => console.log(`Server's started on port: ${port}`))
     } catch (e) {
         console.log(e)

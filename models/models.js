@@ -5,8 +5,9 @@ const User = sequelize.define('user', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     email: {type: DataTypes.STRING, unique: true},
     address: {type: DataTypes.STRING, allowNull: true},
+    username: {type: DataTypes.STRING, unique: true, allowNull: true},
     password: {type: DataTypes.STRING, allowNull: false},
-    role: {type: DataTypes.STRING, defaultValue: 'customer', allowNull: false},
+    role: {type: DataTypes.STRING, defaultValue: 'CUSTOMER', allowNull: false},
     name: {type: DataTypes.STRING, allowNull: false},
     isActivated: {type: DataTypes.BOOLEAN, defaultValue: false},
     activationLink: {type: DataTypes.STRING},
@@ -75,7 +76,9 @@ const Promotion = sequelize.define('promotion', {
     description: {type: DataTypes.TEXT, allowNull: true},
     validSince: {type: DataTypes.DATEONLY, allowNull: false},
     validUntil: {type: DataTypes.DATEONLY, allowNull: false},
-    img: {type: DataTypes.STRING, allowNull: false}
+    img: {type: DataTypes.STRING, allowNull: false},
+    link: {type: DataTypes.STRING, defaultValue: ''},
+    index: {type: DataTypes.INTEGER, defaultValue: 0}
 })
 
 const Category = sequelize.define('category', {
@@ -108,7 +111,8 @@ const Product = sequelize.define('product', {
     special: {type: DataTypes.BOOLEAN, defaultValue: false},
     published: {type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
     inStock: {type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true},
-    hidden: {type: DataTypes.BOOLEAN, defaultValue: false}
+    hidden: {type: DataTypes.BOOLEAN, defaultValue: false},
+    specialBonus: {type: DataTypes.FLOAT, defaultValue: 0}
 }, {timestamps: false})
 
 const ProductImages = sequelize.define('product_images', {

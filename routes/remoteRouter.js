@@ -6,7 +6,6 @@ const checkRole = require('../middleware/CheckRoleMiddleware')
 
 
 router.get('/customers', checkRole('ADMIN'), userController.getCustomers)
-router.get('/remote', userController.updatePricesStocks)
 router.get('/products', userController.getAllRemoteProducts)
 
 

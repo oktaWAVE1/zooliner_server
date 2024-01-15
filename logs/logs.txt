@@ -60,3 +60,5 @@
 08.01.2024, 16:10:39 Ошибка: Cannot read properties of undefined (reading 'destroy') 
 08.01.2024, 16:13:08 Ошибка: Cannot read properties of undefined (reading 'findOne') 
 08.01.2024, 16:21:21 Ошибка: Cannot read properties of undefined (reading 'destroy') 
+12.01.2024, 22:04:22 Ошибка: повторяющееся значение ключа нарушает ограничение уникальности "promotions_pkey" 
+12.01.2024, 22:54:26 Ошибка: Не авторизован 

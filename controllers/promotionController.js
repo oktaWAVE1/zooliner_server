@@ -9,7 +9,7 @@ const directory = path.resolve(__dirname, '..', 'static/images/promotions')
 class PromotionController {
     async getAll(req, res, next) {
         try {
-            const promotions = await Promotion.findAll()
+            const promotions = await Promotion.findAll({order: [['index', 'ASC']]})
             return res.json(promotions)
         } catch (e) {
             next(ApiError.badRequest(e.message))
@@ -26,7 +26,7 @@ class PromotionController {
                         validUntil: {
                             [Op.gte]: now
                         }
-                    }
+                    }, order: [['index', 'ASC']]
             })
             return res.json(promotions)
         } catch (e) {
@@ -37,7 +37,8 @@ class PromotionController {
 
     async create(req, res, next) {
         try {
-            const {description, validSince, validUntil} = req.body
+            console.log("**************")
+            const {description, validSince, validUntil, index, link} = req.body
             let file
             try {
                 file = req.files.file
@@ -45,10 +46,10 @@ class PromotionController {
                 console.log("no imgs")
             } if (file) {
                 const fileName = await imageService.saveImg(file, directory, resizeWidth)
-                const promotion = await Promotion.create({description, validSince, validUntil, img: fileName})
+                const promotion = await Promotion.create({description, validSince, validUntil, img: fileName, index, link})
                 return res.json(promotion)
             } else {
-                const promotion = await Promotion.create({description, validSince, validUntil})
+                const promotion = await Promotion.create({description, validSince, validUntil, index, link})
                 return res.json(promotion)
             }
 
@@ -58,7 +59,7 @@ class PromotionController {
     }
 
     async modify (req, res, next) {
-        const {id, description, validSince, validUntil} = req.body
+        const {id, description, validSince, validUntil, index, link} = req.body
         const file = req?.files?.file
         try {
             if (file) {
@@ -66,13 +67,13 @@ class PromotionController {
 
                 await imageService.delImg(promotionData?.dataValues?.img, directory)
                 await imageService.saveImg(file, directory, resizeWidth).then(async (img) => {
-                    const promotion = await Promotion.update({description, validSince, validUntil, img}, {
+                    const promotion = await Promotion.update({description, validSince, validUntil, img, index, link}, {
                         where: {id},
                     })
                     return res.json(promotion)
                 })
             } else {
-                const promotion = await Promotion.update({description, validSince, validUntil}, {
+                const promotion = await Promotion.update({description, validSince, validUntil, index, link}, {
                     where: {id},
                 })
                 return res.json(promotion)
@@ -84,9 +85,24 @@ class PromotionController {
 
     }
 
+    async setIndex (req, res, next) {
+        const {id, index} = req.body
+        try {
+         await Promotion.update({index}, {
+                    where: {id},
+                })
+        return res.json("Порядок изменён")
+
+
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+
+    }
+
     async delete (req, res, next) {
-        const {id} = req.body
-        const promotion = await Brand.findByPk(id)
+        const {id} = req.query
+        const promotion = await Promotion.findByPk(id)
         await Promotion.destroy({
             where: {id},
         })

@@ -76,6 +76,48 @@ class UserController {
             next(ApiError.badRequest(e.message))
         }
     }
+
+    async oauth(req, res, next) {
+        try {
+
+            // const {email, telephone, password} = req.body
+            // const user = await User.findOne({where: {email}}) || await User.findOne({where: {telephone}})
+            //
+            // if (!user) {
+            //     return next(ApiError.badRequest("Такого пользователя не существует"))
+            // }
+
+            // const userDto = new UserDto(user);
+            // const tokens = tokenService.generateJwt({...userDto});
+            // await tokenService.saveToken(user.id, tokens.refreshToken)
+            // res.cookie('refreshToken', tokens.refreshToken, {maxAge: 60*24*60*60*1000, httpOnly: true, sameSite: "none", secure: true})
+            // return res.json(tokens)
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
+    async VKID(req, res, next) {
+        try {
+            console.log(req.query)
+            // const {email, telephone, password} = req.body
+            // const user = await User.findOne({where: {email}}) || await User.findOne({where: {telephone}})
+            //
+            // if (!user) {
+            //     return next(ApiError.badRequest("Такого пользователя не существует"))
+            // }
+
+            // const userDto = new UserDto(user);
+            // const tokens = tokenService.generateJwt({...userDto});
+            // await tokenService.saveToken(user.id, tokens.refreshToken)
+            // res.cookie('refreshToken', tokens.refreshToken, {maxAge: 60*24*60*60*1000, httpOnly: true, sameSite: "none", secure: true})
+            // return res.json(tokens)
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
+
     async check (req, res, next) {
         try {
             const {refreshToken} = req.cookies;
@@ -150,7 +192,17 @@ class UserController {
         }
     }
 
-
+    async setRole (req, res, next) {
+        try {
+            const {userId, role} = req.body
+            console.log(userId)
+            console.log(role)
+            await User.update({role}, {where: {id: userId}})
+            return res.json("Роль успешно изменена")
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
 
 
     async activate (req, res, next) {
