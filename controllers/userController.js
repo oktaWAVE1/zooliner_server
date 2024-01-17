@@ -60,12 +60,10 @@ class UserController {
             }
             let comparePassword = bcrypt.compareSync(password, user.password)
             if (!comparePassword) {
-                console.debug(user)
-                console.log(password)
-                return next(ApiError.internal("Введен неверный пароль"))
+                return next(ApiError.badRequest("Введен неверный пароль"))
             }
             if(!user.isActivated){
-                return next(ApiError.internal("Подтвердите аккаунт по электронной почте"))
+                return next(ApiError.badRequest("Подтвердите аккаунт по электронной почте"))
             }
             const userDto = new UserDto(user);
             const tokens = tokenService.generateJwt({...userDto});
