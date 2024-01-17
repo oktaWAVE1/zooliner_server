@@ -59,7 +59,7 @@ class CategoryController {
     }
 
     async getPublished (req, res) {
-        const categories = await Category.findAll({where: {published: true}, include: [
+        const categories = await Category.findAll({where: {published: true}, order: [['id', 'ASC'], [{model: Category, as: 'children'}, "ordering", "ASC"]], include: [
                 {model: Category, as: 'children'}
             ]})
         return res.json(categories)
