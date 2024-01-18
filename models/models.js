@@ -11,7 +11,8 @@ const User = sequelize.define('user', {
     name: {type: DataTypes.STRING, allowNull: false},
     isActivated: {type: DataTypes.BOOLEAN, defaultValue: false},
     activationLink: {type: DataTypes.STRING},
-    telephone: {type: DataTypes.STRING, unique: true}
+    telephone: {type: DataTypes.STRING, unique: true},
+    vkId: {type: DataTypes.INTEGER, unique: true}
 })
 
 const UserRefreshToken = sequelize.define('user_refresh_token', {

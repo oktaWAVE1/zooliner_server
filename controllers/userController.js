@@ -6,13 +6,17 @@ const {User, Basket, BonusPoint, BonusPointsLog} = require('../models/models')
 const mailService = require('../service/mail-service')
 const tokenService = require('../service/token-service')
 const UserDto = require("../dtos/user-dto");
+const axios = require("axios")
+
 
 
 
 class UserController {
+
+
     async registration (req, res, next) {
         try {
-            const {email, password, name, telephone, role} = req.body
+            const {email, password, name, telephone} = req.body
             if (!email || !password || !name) {
 
                 return next(ApiError.badRequest('Не заполнены необходимые данные'))
@@ -32,7 +36,7 @@ class UserController {
 
             const hashPassword = await bcrypt.hash(password, 5)
             const activationLink = uuid.v4()
-            await User.create({email, password: hashPassword, name, telephone, role, activationLink}).then(async(user) => {
+            await User.create({email, password: hashPassword, name, telephone, activationLink, isActivated: false}).then(async(user) => {
                 const userDto = new UserDto(user);
                 const tokens = tokenService.generateJwt({...userDto});
                 await tokenService.saveToken(user.id, tokens.refreshToken)
@@ -97,23 +101,80 @@ class UserController {
 
     async VKID(req, res, next) {
         try {
-            console.log("***********************")
-            console.log(req.params)
-            console.log(req)
-            console.log(req.query)
-            // const {email, telephone, password} = req.body
-            // const user = await User.findOne({where: {email}}) || await User.findOne({where: {telephone}})
-            //
-            // if (!user) {
-            //     return next(ApiError.badRequest("Такого пользователя не существует"))
-            // }
+            const {payload} = req.query
+            const data = JSON.parse(payload)
 
-            // const userDto = new UserDto(user);
-            // const tokens = tokenService.generateJwt({...userDto});
-            // await tokenService.saveToken(user.id, tokens.refreshToken)
-            // res.cookie('refreshToken', tokens.refreshToken, {maxAge: 60*24*60*60*1000, httpOnly: true, sameSite: "none", secure: true})
-            // return res.json(tokens)
-            return res.json(req)
+
+
+
+            await axios.get("https://api.vk.com/method/auth.exchangeSilentAuthToken", {
+                params:{
+                    v: process.env.VK_API_VERSION,
+                    token: data.token,
+                    access_token: process.env.VK_SERVICE_TOKEN,
+                    uuid: data.uuid
+                }
+            }).then(async (resp)=> {
+                if(!resp?.data?.response?.user_id){
+                    console.log(resp)
+                    return res.redirect(`${process.env.CLIENT_URL}/failed_auth`)
+                }
+                const user = await User.findOne({where: {vkId: data.user.id}})
+
+                if (user) {
+                    const userDto = new UserDto(user);
+                    const tokens = tokenService.generateJwt({...userDto});
+                    await tokenService.saveToken(user.id, tokens.refreshToken)
+                    res.cookie('refreshToken', tokens.refreshToken, {maxAge: 60*24*60*60*1000, httpOnly: true, sameSite: "none", secure: true})
+                    return res.redirect(`${process.env.CLIENT_URL}/check?accessToken=${tokens.accessToken}`)
+                }
+
+                await User.findOne({where: {email: resp.data.response.email}}).then(async (registeredEmailUser) => {
+
+                if (registeredEmailUser) {
+                    await User.update({vkId: data.user.id}, {where: {id: registeredEmailUser.id}})
+                    const userDto = new UserDto(registeredEmailUser);
+                    const tokens = tokenService.generateJwt({...userDto});
+                    await tokenService.saveToken(registeredEmailUser.id, tokens.refreshToken)
+                    res.cookie('refreshToken', tokens.refreshToken, {maxAge: 60*24*60*60*1000, httpOnly: true, sameSite: "none", secure: true})
+                    return res.redirect(`${process.env.CLIENT_URL}/check?accessToken=${tokens.accessToken}`)
+                } else {
+                    const randomPass = await bcrypt.hash(uuid.v4(), 5)
+                    const activationLink = uuid.v4()
+                    await User.create({
+                        email: resp.data.response.email,
+                        password: randomPass,
+                        name: `${data?.user?.first_name} ${data?.user?.last_name}`,
+                        telephone: '',
+                        activationLink,
+                        isActivated: true,
+                        vkId: data.user.id
+
+                    }).then(async (newUser) => {
+                            const userDto = new UserDto(newUser);
+                            await Basket.create({userId: newUser.id})
+                            await BonusPoint.create({userId: newUser.id})
+                            const tokens = tokenService.generateJwt({...userDto});
+                            await tokenService.saveToken(newUser.id, tokens.refreshToken)
+                            res.cookie('refreshToken', tokens.refreshToken, {
+                                maxAge: 60 * 24 * 60 * 60 * 1000,
+                                httpOnly: true,
+                                sameSite: "none",
+                                secure: true
+                            })
+                            return res.redirect(`${process.env.CLIENT_URL}/check?accessToken=${tokens.accessToken}`)
+
+
+                    })
+                }
+            })
+            })
+
+
+
+
+
+
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }

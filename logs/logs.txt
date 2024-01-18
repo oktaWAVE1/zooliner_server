@@ -1040,3 +1040,56 @@
 17.01.2024, 19:24:27 Ошибка: ReferenceError: manufacturers is not defined 
 17.01.2024, 19:24:27 Ошибка: ReferenceError: manufacturers is not defined 
 17.01.2024, 19:24:27 Ошибка: ReferenceError: manufacturers is not defined 
+18.01.2024, 17:04:34 Ошибка: Converting circular structure to JSON
+    --> starting at object with constructor 'Socket'
+    |     property 'parser' -> object with constructor 'HTTPParser'
+    --- property 'socket' closes the circle 
+18.01.2024, 17:09:08 Ошибка: Converting circular structure to JSON
+    --> starting at object with constructor 'Socket'
+    |     property 'parser' -> object with constructor 'HTTPParser'
+    --- property 'socket' closes the circle 
+18.01.2024, 17:09:50 Ошибка: Converting circular structure to JSON
+    --> starting at object with constructor 'Socket'
+    |     property 'parser' -> object with constructor 'HTTPParser'
+    --- property 'socket' closes the circle 
+18.01.2024, 17:12:12 Ошибка: Converting circular structure to JSON
+    --> starting at object with constructor 'Socket'
+    |     property 'parser' -> object with constructor 'HTTPParser'
+    --- property 'socket' closes the circle 
+18.01.2024, 17:28:44 Ошибка: Converting circular structure to JSON
+    --> starting at object with constructor 'Socket'
+    |     property 'parser' -> object with constructor 'HTTPParser'
+    --- property 'socket' closes the circle 
+18.01.2024, 17:30:54 Ошибка: Converting circular structure to JSON
+    --> starting at object with constructor 'Socket'
+    |     property 'parser' -> object with constructor 'HTTPParser'
+    --- property 'socket' closes the circle 
+18.01.2024, 17:31:48 Ошибка: Converting circular structure to JSON
+    --> starting at object with constructor 'Socket'
+    |     property 'parser' -> object with constructor 'HTTPParser'
+    --- property 'socket' closes the circle 
+18.01.2024, 17:35:33 Ошибка: Converting circular structure to JSON
+    --> starting at object with constructor 'Socket'
+    |     property 'parser' -> object with constructor 'HTTPParser'
+    --- property 'socket' closes the circle 
+18.01.2024, 17:37:32 Ошибка: Converting circular structure to JSON
+    --> starting at object with constructor 'Socket'
+    |     property 'parser' -> object with constructor 'HTTPParser'
+    --- property 'socket' closes the circle 
+18.01.2024, 17:59:14 Ошибка: Cannot read properties of undefined (reading 'createUser') 
+18.01.2024, 18:00:58 Ошибка: Введен неверный пароль 
+18.01.2024, 18:00:58 Ошибка: Cannot read properties of undefined (reading 'generateTokens') 
+18.01.2024, 18:02:57 Ошибка: Cannot read properties of undefined (reading 'createUser') 
+18.01.2024, 18:14:18 Ошибка: Cannot read properties of null (reading 'id') 
+18.01.2024, 18:16:11 Ошибка: Cannot read properties of undefined (reading 'generateTokens') 
+18.01.2024, 18:16:46 Ошибка: Cannot read properties of null (reading 'id') 
+18.01.2024, 18:18:53 Ошибка: Cannot read properties of null (reading 'id') 
+18.01.2024, 18:29:57 Ошибка: notNull Violation: user.password cannot be null 
+18.01.2024, 18:33:39 Ошибка: notNull Violation: user.password cannot be null 
+18.01.2024, 18:34:39 Ошибка: WHERE parameter "refreshToken" has invalid "undefined" value 
+18.01.2024, 18:34:39 Ошибка: WHERE parameter "refreshToken" has invalid "undefined" value 
+18.01.2024, 18:34:39 Ошибка: string violation: password cannot be an array or an object 
+18.01.2024, 18:35:12 Ошибка: Cannot read properties of null (reading 'id') 
+18.01.2024, 18:36:54 Ошибка: Cannot read properties of null (reading 'id') 
+18.01.2024, 18:38:11 Ошибка: Cannot read properties of null (reading 'id') 
+18.01.2024, 19:06:49 Ошибка: res.cookie(...).then is not a function 
