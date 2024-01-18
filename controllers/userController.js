@@ -113,6 +113,7 @@ class UserController {
             // await tokenService.saveToken(user.id, tokens.refreshToken)
             // res.cookie('refreshToken', tokens.refreshToken, {maxAge: 60*24*60*60*1000, httpOnly: true, sameSite: "none", secure: true})
             // return res.json(tokens)
+            return res.json(req)
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }
