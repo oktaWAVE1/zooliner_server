@@ -27,7 +27,9 @@ app.use('/api', router)
 
 app.use(errorHandler)
 
+
 const productUpdater = setInterval(() => update(2), 1000*60*5)
+const productDailyUpdater = setInterval(() => update(240), 1000*60*60*24)
 
 const start = async () => {
     try{

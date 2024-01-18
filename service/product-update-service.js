@@ -44,82 +44,7 @@ const update = async (timeOffset) => {
         ]
     }).then(async (remoteProducts) => {
         for (const pr of remoteProducts) {
-            const categories = []
-            pr.categoriesOfProductsRemotes.forEach(CFPR => {
-                categories.push(CFPR.categoriesRemote.id_категории)
-            })
-            pr.parent?.categoriesOfProductsRemotes.forEach(CFPR => {
-                categories.push(CFPR.categoriesRemote.id_категории)
-            })
-            let published = false
-
-            if (pr.Published !== 0) {
-                if (pr.product_in_stock > 0) {
-                    published = true
-                }
-                if (pr.product_in_stock <= 0) {
-                    if (categories.some(c => [2, 4, 6].includes(c))) {
-                        if (pr.children.length > 0 && !pr.Акция) {
-                            published = pr.children.some(ch => ch.Published !== 0)
-                        }
-                        if (pr.id_родительского > 0 && !pr.Акция) {
-                            published = true
-                        }
-                    } else {
-                        if (pr.children.length > 0) {
-                            published = pr.children.some(ch => ch.product_in_stock > 0)
-                        }
-
-                    }
-                }
-            }
-
-
-            try {
-
-                const product = await Product.findOne({where: {id: pr.Код}})
-                const content = {
-                    id: pr.Код,
-                    SKU: pr.Код,
-                    inStock: pr.product_in_stock > 0,
-                    price: pr.Цена,
-                    title: pr.Наименование,
-                    shortDescription: pr["Наименование (крат опис)"],
-                    description: pr["Полное описание"],
-                    weight: pr.Вес,
-                    // discountedPrice: pr.discountedPrice,
-                    // metaTitle: pr.metaTitle,
-                    // metaDescription: pr.metaDescription,
-                    // indexNumber: pr.indexNumber,
-                    searchKeys: pr["Ключи для поиска"],
-                    // pack: pr["pack"],
-                    published,
-                    brandId: manufacturers.get(pr.производитель),
-                    special: Boolean(pr.Акция),
-                    productId: pr.id_родительского,
-                }
-                if (content.title === null || content.title === 'Новый товар') continue
-                if (product?.id) {
-                    let id = content.id
-                    delete content.id
-                    delete content.SKU
-                    await Product.update({...content}, {where: {id}})
-                } else {
-                    await Product.create({...content})
-                }
-
-            } catch (e) {
-                console.log(e)
-                const date = new Date()
-                const timeStampLog = date.toLocaleString()
-
-                await fs.appendFile(`../server/logs/logs.txt`, `${timeStampLog} Ошибка: ${e} \n`, (err) => {
-                    if (err) {
-                        console.log(err);
-                    }
-                })
-            }
-
+            await updateProduct(pr, manufacturers)
         }
     }).then(async () => {
             try {
@@ -167,6 +92,104 @@ const update = async (timeOffset) => {
     ).then(() => {
         console.log(`result: Done in ${Math.floor((Date.now() - start) / 1000)} sec. StartSearch: ${updatedStartTime}`)
     })
+}
+
+async function updateProduct (pr, manufacturers) {
+    const categories = []
+    pr.categoriesOfProductsRemotes.forEach(CFPR => {
+        categories.push(CFPR.categoriesRemote.id_категории)
+    })
+    pr.parent?.categoriesOfProductsRemotes.forEach(CFPR => {
+        categories.push(CFPR.categoriesRemote.id_категории)
+    })
+    let published = false
+
+    if (pr.Published !== 0) {
+        if (pr.product_in_stock > 0) {
+            published = true
+        }
+        if (pr.product_in_stock <= 0) {
+            if (categories.some(c => [2, 4, 6].includes(c))) {
+                if (pr.children.length > 0 && !pr.Акция) {
+                    published = pr.children.some(ch => ch.Published !== 0)
+                }
+                if (pr.id_родительского > 0 && !pr.Акция) {
+                    published = true
+                }
+            } else {
+                if (pr.children.length > 0) {
+                    published = pr.children.some(ch => ch.product_in_stock > 0)
+                }
+
+            }
+        }
+
+        if(pr?.id_родительского !==0){
+            const parent = await ProductRemote.findOne({
+                where: {Код: pr.id_родительского}, include: [
+                    {
+                        model: CategoryProductRemote, include: [
+                            {model: CategoryRemote}
+                        ]
+                    },
+                    {model: ProductRemote, as: 'children'},
+                    {model: ProductRemote, as: 'parent', include: [
+                            {model: CategoryProductRemote, include: [
+                                    {model: CategoryRemote}
+                                ]
+                            }]
+                    },
+                ]
+            })
+            await updateProduct(parent, manufacturers)
+        }
+    }
+
+
+    try {
+
+        const product = await Product.findOne({where: {id: pr.Код}})
+        const content = {
+            id: pr.Код,
+            SKU: pr.Код,
+            inStock: pr.product_in_stock > 0,
+            price: pr.Цена,
+            title: pr.Наименование,
+            shortDescription: pr["Наименование (крат опис)"],
+            description: pr["Полное описание"],
+            weight: pr.Вес,
+            // discountedPrice: pr.discountedPrice,
+            // metaTitle: pr.metaTitle,
+            // metaDescription: pr.metaDescription,
+            // indexNumber: pr.indexNumber,
+            searchKeys: pr["Ключи для поиска"],
+            // pack: pr["pack"],
+            published,
+            brandId: manufacturers.get(pr.производитель),
+            special: Boolean(pr.Акция),
+            productId: pr.id_родительского,
+        }
+        if (content.title === null || content.title === 'Новый товар') return
+        if (product?.id) {
+            let id = content.id
+            delete content.id
+            delete content.SKU
+            await Product.update({...content}, {where: {id}})
+        } else {
+            await Product.create({...content})
+        }
+
+    } catch (e) {
+        console.log(e)
+        const date = new Date()
+        const timeStampLog = date.toLocaleString()
+
+        await fs.appendFile(`../server/logs/logs.txt`, `${timeStampLog} Ошибка: ${e} \n`, (err) => {
+            if (err) {
+                console.log(err);
+            }
+        })
+    }
 }
 
 module.exports = {
