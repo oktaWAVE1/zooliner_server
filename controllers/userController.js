@@ -97,6 +97,9 @@ class UserController {
 
     async VKID(req, res, next) {
         try {
+            console.log("***********************")
+            console.log(req.params)
+            console.log(req)
             console.log(req.query)
             // const {email, telephone, password} = req.body
             // const user = await User.findOne({where: {email}}) || await User.findOne({where: {telephone}})
