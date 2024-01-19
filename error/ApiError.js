@@ -9,7 +9,6 @@ class ApiError extends Error {
         this.message = message
     }
     static async badRequest (message) {
-        console.log(__dirname)
         console.log(message)
         await fs.appendFile(`./logs/logs.txt`, `${timeStampLog} Ошибка: ${message} \n`, (err) => {
             if (err) {
@@ -19,7 +18,6 @@ class ApiError extends Error {
         return new ApiError(404, message)
     }
     static async internal (message) {
-        console.log(__dirname)
         console.log(500, message)
         await fs.appendFile(`./logs/logs.txt`, `${timeStampLog} Ошибка: ${message} \n`, (err) => {
             if (err) {
@@ -29,7 +27,6 @@ class ApiError extends Error {
         return new ApiError(500, message)
     }
     static async forbidden (message) {
-        console.log(__dirname)
         console.log(403, message)
         await fs.appendFile(`./logs/logs.txt`, `${timeStampLog} Ошибка: ${message} \n`, (err) => {
             if (err) {
