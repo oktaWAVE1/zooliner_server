@@ -11,7 +11,7 @@ class ApiError extends Error {
     static async badRequest (message) {
         console.log(__dirname)
         console.log(message)
-        await fs.appendFile(`../logs/logs.txt`, `${timeStampLog} Ошибка: ${message} \n`, (err) => {
+        await fs.appendFile(`./logs/logs.txt`, `${timeStampLog} Ошибка: ${message} \n`, (err) => {
             if (err) {
                 console.log(404, err);
             }
@@ -21,7 +21,7 @@ class ApiError extends Error {
     static async internal (message) {
         console.log(__dirname)
         console.log(500, message)
-        await fs.appendFile(`../logs/logs.txt`, `${timeStampLog} Ошибка: ${message} \n`, (err) => {
+        await fs.appendFile(`./logs/logs.txt`, `${timeStampLog} Ошибка: ${message} \n`, (err) => {
             if (err) {
                 console.log(err);
             }
@@ -31,7 +31,7 @@ class ApiError extends Error {
     static async forbidden (message) {
         console.log(__dirname)
         console.log(403, message)
-        await fs.appendFile(`../logs/logs.txt`, `${timeStampLog} Ошибка: ${message} \n`, (err) => {
+        await fs.appendFile(`./logs/logs.txt`, `${timeStampLog} Ошибка: ${message} \n`, (err) => {
             if (err) {
                 console.log(err);
             }
