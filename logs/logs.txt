@@ -1093,3 +1093,20 @@
 18.01.2024, 18:36:54 Ошибка: Cannot read properties of null (reading 'id') 
 18.01.2024, 18:38:11 Ошибка: Cannot read properties of null (reading 'id') 
 18.01.2024, 19:06:49 Ошибка: res.cookie(...).then is not a function 
+20.01.2024, 00:37:38 Ошибка: product.addProductCategory is not a function 
+20.01.2024, 00:37:38 Ошибка: product.addProductCategory is not a function 
+20.01.2024, 14:27:10 Ошибка: product.addProductCategory is not a function 
+20.01.2024, 14:27:10 Ошибка: product.addProductCategory is not a function 
+20.01.2024, 14:27:10 Ошибка: product.addProductCategory is not a function 
+20.01.2024, 14:35:15 Ошибка: product.addProductCategory is not a function 
+20.01.2024, 14:36:19 Ошибка: category.addProductCategory is not a function 
+20.01.2024, 14:40:10 Ошибка: product.addProductCategory is not a function 
+20.01.2024, 14:41:52 Ошибка: Cannot read properties of undefined (reading 'prototype') 
+20.01.2024, 14:42:12 Ошибка: product.addProductCategory is not a function 
+20.01.2024, 14:42:33 Ошибка: product.addProductCategory is not a function 
+20.01.2024, 14:43:56 Ошибка: Cannot read properties of undefined (reading 'prototype') 
+20.01.2024, 14:44:12 Ошибка: product.addProductCategory is not a function 
+20.01.2024, 14:45:34 Ошибка: Cannot read properties of undefined (reading 'prototype') 
+20.01.2024, 14:45:56 Ошибка: product.addProductCategory is not a function 
+20.01.2024, 14:46:06 Ошибка: product.addProductCategory is not a function 
+20.01.2024, 14:48:45 Ошибка: product.addProductCategory is not a function 

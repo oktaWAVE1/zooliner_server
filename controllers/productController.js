@@ -222,9 +222,9 @@ class ProductController {
         try {
             const {productId, categoryId} = req.body
             const product = await Product.findByPk(productId)
-            await Category.findByPk(categoryId).then(async (category) => {
-                await product.addProductCategory(category, {through: 'Product_Category'})
-            })
+            const category = await Category.findByPk(categoryId)
+            await product.addCategory(category, {through: 'Product_Category'})
+
 
             return res.json("Добавлено")
         } catch (e) {
