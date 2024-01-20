@@ -12,8 +12,9 @@ class AttributeController {
 
     async createCategory(req, res, next) {
         const {name} = req.body
+        const lastAttributeCategory = await ProductAttributeCategory.findAll({limit:1, order:[["id", "DESC"]]})
         try {
-            const category = await ProductAttributeCategory.create({name})
+            const category = await ProductAttributeCategory.create({name, id: (lastAttributeCategory[0].id+1)})
             return res.json(category)
         } catch (e) {
             next(ApiError.badRequest(e.message))
@@ -21,9 +22,9 @@ class AttributeController {
     }
 
     async changeCategory(req, res, next) {
-        const {id, published} = req.body
+        const {id, published, name} = req.body
         try {
-            const category = await ProductAttributeCategory.update({published}, {where: {id}})
+            const category = await ProductAttributeCategory.update({published, name}, {where: {id}})
             return res.json(category)
         } catch (e) {
             next(ApiError.badRequest(e.message))
@@ -31,7 +32,7 @@ class AttributeController {
     }
 
     async deleteCategory(req, res, next) {
-        const {id} = req.body
+        const {id} = req.query
         try {
             await ProductAttributeCategory.destroy({where: {id}})
             return res.json("Удалено")
@@ -47,8 +48,9 @@ class AttributeController {
 
     async createAttribute(req, res, next) {
         const {productAttributeCategoryId, value} = req.body
+        const lastAttribute = await ProductAttribute.findAll({limit:1, order:[["id", "DESC"]]})
         try {
-            const attribute = await ProductAttribute.create({value, productAttributeCategoryId})
+            const attribute = await ProductAttribute.create({value, productAttributeCategoryId, id: (lastAttribute[0].id+1)})
             return res.json(attribute)
         } catch (e) {
             next(ApiError.badRequest(e.message))
@@ -56,16 +58,16 @@ class AttributeController {
     }
 
     async changeAttribute(req, res, next) {
-        const {id, published, value} = req.body
+        const {id, value} = req.body
         try {
-            const attribute = await ProductAttribute.update({published, value}, {where: {id}})
+            const attribute = await ProductAttribute.update({value}, {where: {id}})
             return res.json(attribute)
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }
     }
     async deleteAttribute(req, res, next) {
-        const {id} = req.body
+        const {id} = req.query
         try {
             await ProductAttribute.destroy({where: {id}})
             return res.json("Удалено")
