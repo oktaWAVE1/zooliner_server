@@ -7,6 +7,7 @@ class BasketController {
     async get(req, res, next) {
         try {
             const {id} = req.query
+            console.log(id)
             const basket = await Basket.findOne({where: {userId: id}})
             const basketItems = await BasketProduct.findAll({where: {basketId: basket.id}, order: [['id', 'ASC']], include: [
 

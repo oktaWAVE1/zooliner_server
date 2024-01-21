@@ -2,3 +2,4 @@
 static
 models/modelsRemote.js
 logs
+node_modules
