@@ -25,7 +25,7 @@ class MailService {
         html = html.replace("${greeting}", `Рады приветсвовать Вас на сайте ${process.env.API_URL}!`)
         html = html.replace("${text}", `
                 <div>
-                    <h4>Для завершения регистрации перейдите по <a href="${link}" target="_blank">>ссылке</a></h4>                    
+                    <h4>Для завершения регистрации перейдите по <a href="${link}" target="_blank">ссылке</a></h4>                    
                     <h4>Если не получилось, скопируйте следующую ссылку в строку браузера: <br/>
                         <a href="${link}" target="_blank">${link}</a>                    
                     </h4>

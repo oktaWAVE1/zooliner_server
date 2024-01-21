@@ -53,6 +53,20 @@ class UserController {
 
     }
 
+    async resendActivationLink (req, res, nex){
+        try {
+            const {email} = req.body
+            const user = await User.findOne({where: {email}})
+            if (!user){
+                return next(ApiError.badRequest('Пользователь не найден'))
+            }
+            await mailService.sendActivationMail(email, process.env.API_URL+`/api/user/activate/${user.activationLink}`)
+            return res.json("Ссылка для активации отправлена на Ваш email. Пожалуйста, перейдите по ссылке, для активации аккаунта.")
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+
     async login (req, res, next) {
         try {
 
@@ -67,7 +81,7 @@ class UserController {
                 return next(ApiError.badRequest("Введен неверный пароль"))
             }
             if(!user.isActivated){
-                return next(ApiError.badRequest("Подтвердите аккаунт по электронной почте"))
+                return next(ApiError.needEmailApproval("Подтвердите аккаунт по электронной почте"))
             }
             const userDto = new UserDto(user);
             const tokens = tokenService.generateJwt({...userDto});
@@ -79,25 +93,7 @@ class UserController {
         }
     }
 
-    async oauth(req, res, next) {
-        try {
 
-            // const {email, telephone, password} = req.body
-            // const user = await User.findOne({where: {email}}) || await User.findOne({where: {telephone}})
-            //
-            // if (!user) {
-            //     return next(ApiError.badRequest("Такого пользователя не существует"))
-            // }
-
-            // const userDto = new UserDto(user);
-            // const tokens = tokenService.generateJwt({...userDto});
-            // await tokenService.saveToken(user.id, tokens.refreshToken)
-            // res.cookie('refreshToken', tokens.refreshToken, {maxAge: 60*24*60*60*1000, httpOnly: true, sameSite: "none", secure: true})
-            // return res.json(tokens)
-        } catch (e) {
-            next(ApiError.badRequest(e.message))
-        }
-    }
 
     async VKID(req, res, next) {
         try {
@@ -193,6 +189,10 @@ class UserController {
                 res.clearCookie('refreshToken')
                 return next(ApiError.internal("Не авторизован"))
             } else {
+                if (!user.isAcivated){
+                    return next(ApiError.needEmailApproval("Подтвердите аккаунт по электронной почте"))
+                }
+
                 const userDto = new UserDto(user);
                 const tokens = tokenService.generateJwt({...userDto});
                 await tokenService.saveToken(user.id, tokens.refreshToken)
@@ -258,10 +258,17 @@ class UserController {
     async setRole (req, res, next) {
         try {
             const {userId, role} = req.body
-            console.log(userId)
-            console.log(role)
             await User.update({role}, {where: {id: userId}})
             return res.json("Роль успешно изменена")
+        } catch (e) {
+            next(ApiError.badRequest(e.message))
+        }
+    }
+    async setEmailActivated (req, res, next) {
+        try {
+            const {userId, isActivated} = req.body
+            await User.update({isActivated}, {where: {id: userId}})
+            return res.json("Email активация изменена")
         } catch (e) {
             next(ApiError.badRequest(e.message))
         }

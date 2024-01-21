@@ -17,6 +17,15 @@ class ApiError extends Error {
         })
         return new ApiError(404, message)
     }
+    static async needEmailApproval (message) {
+        console.log(message)
+        await fs.appendFile(`./logs/logs.txt`, `${timeStampLog} Ошибка: ${message} \n`, (err) => {
+            if (err) {
+                console.log(423, err);
+            }
+        })
+        return new ApiError(423, message)
+    }
     static async internal (message) {
         console.log(500, message)
         await fs.appendFile(`./logs/logs.txt`, `${timeStampLog} Ошибка: ${message} \n`, (err) => {
