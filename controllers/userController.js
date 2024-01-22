@@ -83,6 +83,7 @@ class UserController {
             if(!user.isActivated){
                 return next(ApiError.needEmailApproval("Подтвердите аккаунт по электронной почте"))
             }
+            await user.update({lastVisitDate: Date.now()})
             const userDto = new UserDto(user);
             const tokens = tokenService.generateJwt({...userDto});
             await tokenService.saveToken(user.id, tokens.refreshToken)
@@ -129,6 +130,7 @@ class UserController {
 
                 if (registeredEmailUser) {
                     await User.update({vkId: data.user.id}, {where: {id: registeredEmailUser.id}})
+
                     const userDto = new UserDto(registeredEmailUser);
                     const tokens = tokenService.generateJwt({...userDto});
                     await tokenService.saveToken(registeredEmailUser.id, tokens.refreshToken)
@@ -189,10 +191,10 @@ class UserController {
                 res.clearCookie('refreshToken')
                 return next(ApiError.internal("Не авторизован"))
             } else {
-                if (!user.isAcivated){
+                if (!user.isActivated){
                     return next(ApiError.needEmailApproval("Подтвердите аккаунт по электронной почте"))
                 }
-
+                await user.update({lastVisitDate: Date.now()})
                 const userDto = new UserDto(user);
                 const tokens = tokenService.generateJwt({...userDto});
                 await tokenService.saveToken(user.id, tokens.refreshToken)
