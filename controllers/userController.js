@@ -212,7 +212,7 @@ class UserController {
         try {
             const {id} = req.body
             const user = await User.findOne({
-                where: {id}, attributes: ['name', 'email', 'telephone', 'id', 'address'],
+                where: {id}, attributes: ['name', 'email', 'telephone', 'id', 'address', 'vkId'],
                 include: [{model: BonusPoint}]
             })
             return res.json(user)
@@ -240,8 +240,9 @@ class UserController {
             const {email, password, name, telephone, id, newPassword, address} = req.body
             const user = await User.findOne({where: {id}})
             let comparePassword = bcrypt.compareSync(password, user.password)
-            if (!comparePassword) {
-                return next(ApiError.internal("Введен неверный пароль"))
+
+            if (!comparePassword && !user.vkId) {
+                return next(ApiError.forbidden("Введен неверный пароль"))
             }
             if (newPassword?.length>=8){
                 const hashPassword = await bcrypt.hash(newPassword, 5)
