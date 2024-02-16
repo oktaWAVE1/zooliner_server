@@ -118,7 +118,7 @@ async function updateProduct (pr, manufacturers) {
                 }
             } else {
                 if (pr.children.length > 0) {
-                    published = pr.children.some(ch => ch.product_in_stock > 0)
+                    published = pr.children.some(ch => ch.product_in_stock > 0 && ch.published===true)
                 }
 
             }
@@ -149,6 +149,7 @@ async function updateProduct (pr, manufacturers) {
     try {
 
         const product = await Product.findOne({where: {id: pr.Код}})
+
         const content = {
             id: pr.Код,
             SKU: pr.Код,
@@ -165,7 +166,7 @@ async function updateProduct (pr, manufacturers) {
             searchKeys: pr["Ключи для поиска"],
             // pack: pr["pack"],
             published,
-            brandId: manufacturers.get(pr.производитель),
+            brandId: manufacturers.get(pr.производитель) || null,
             special: Boolean(pr.Акция),
             productId: pr.id_родительского,
         }
