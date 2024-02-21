@@ -1348,3 +1348,24 @@ null
 null 
 null 
 null 
+null 
+19.02.2024, 16:19:18 Ошибка: Не авторизован 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+21.02.2024, 16:00:57 Ошибка: Error: Can't send mail - all recipients were rejected: 550 Sender rate overlimit - 102.3 / 1h / noreply@zooliner.ru 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 

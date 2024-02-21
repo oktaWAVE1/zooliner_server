@@ -136,7 +136,15 @@ const SellsCounterRemote = sequelize.define('sellsCounterRemote', {
         "Код магазина": {type: DataTypes.STRING},
         Проведение: {type: DataTypes.BOOLEAN},
         Безнал: {type: DataTypes.BOOLEAN},
-        // onlineOrderNumber: {type: DataTypes.INTEGER}
+        onlineOrderNumber: {type: DataTypes.BIGINT},
+        userId: {type: DataTypes.INTEGER},
+        deliveryId: {type: DataTypes.INTEGER},
+        customDeliveryName: {type: DataTypes.STRING},
+        discount: {type: DataTypes.FLOAT, default: 0},
+        discountDescription: {type: DataTypes.STRING},
+        siteOrderId: {type: DataTypes.BIGINT},
+        siteUserId: {type: DataTypes.INTEGER},
+        bonusPointsUsed: {type: DataTypes.FLOAT, default: 0},
 
     }, {
         timestamps: false,

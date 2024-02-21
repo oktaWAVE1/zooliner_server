@@ -273,20 +273,40 @@ class OrderController {
     async changeStatus(req, res, next) {
         try {
             const {status} = req.body
+            console.log(status)
             const {id} = req.params
             if (!Object.values(config.orderStatuses).includes(status)){
                 next(ApiError.badRequest("Статус не существует"))
             }
             await Order.findByPk(id).then(async(order) => {
-                if(order?.userId>0){
-                    if (status==="Выполнен" && (order.status==="Подтвержден" || order.status==="В работе" || order.status==="Отменен")) {
+                if(order?.userId>0) {
+                    if (status === "Выполнен" && (order.status === "Подтвержден" || order.status === "В работе")) {
                         const Description = `Начислено ${order.accruedBonus.toFixed(2)} бонусов по заказу № ${order.orderNumber}`
-                        await bonusService.addPoints(order.userId, order.accruedBonus, Description, order.id).catch(e => console.log(e))
+                        const usedFrozenPoints = order.bonusPointsUsed
+                        await bonusService.addPoints(order.userId, order.accruedBonus, Description, order.id, usedFrozenPoints).catch(e => console.log(e))
 
-                    } else if (status!=="Выполнен" && order.status==="Выполнен") {
-                        const description = `Отмена заказа № ${order.orderNumber}`
-                        await bonusService.addPoints(order.userId, -(order.accruedBonus), description, order.id).catch(e => console.log(e))
+                    } else if(status === "Выполнен" && (order.status === "Отменен")){
+                        const Description = `Начислено ${order.accruedBonus.toFixed(2)} бонусов по заказу № ${order.orderNumber}. Использовано бонусов: ${order.bonusPointsUsed}`
+                        const usedFrozenPoints = 0
+                        await bonusService.addPoints(order.userId, order.accruedBonus-order.bonusPointsUsed, Description, order.id, usedFrozenPoints).catch(e => console.log(e))
+                    } else if (status==="Отменен" && order.status!=="Отменен" && order.status!=="Выполнен" && order.bonusPointsUsed>0){
+                        const description = `Восстановлены замороженные бонусу по заказу № ${order.orderNumber}`
+                        const defrozenPoints = order.bonusPointsUsed
+                        await bonusService.addPoints(order.userId, defrozenPoints, description, order.id, defrozenPoints).catch(e => console.log(e))
 
+                    } else if (status==="Отменен" && order.status==="Выполнен") {
+                        let defrozenPoints = 0
+                        let description = `Отмена заказа № ${order.orderNumber}`
+                        await bonusService.addPoints(order.userId, -(order.accruedBonus)+order.bonusPointsUsed, description, order.id, defrozenPoints).catch(e => console.log(e))
+
+                    } else if (status!=="Выполнен" && status!=="Отменен" && order.status==="Отменен") {
+                        let frozenPoints = -order.bonusPointsUsed
+                        let description = `Заморожены бонусы по заказу № ${order.orderNumber}`
+                        await bonusService.addPoints(order.userId, frozenPoints, description, order.id, frozenPoints).catch(e => console.log(e))
+                    } else if (status!=="Выполнен" && status!=="Отменен" && order.status==="Выполнен") {
+                        let frozenPoints = -order.bonusPointsUsed
+                        let description = `Отмена заказа № ${order.orderNumber}`
+                        await bonusService.addPoints(order.userId, -(order.accruedBonus), description, order.id, frozenPoints).catch(e => console.log(e))
                     }
                 }
             })

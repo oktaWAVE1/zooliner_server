@@ -48,6 +48,7 @@ const Order = sequelize.define('order', {
     deliverySum: {type: DataTypes.INTEGER, allowNull: true},
     status: {type: DataTypes.STRING, allowNull: false, defaultValue: 'Создан'},
     comment: {type: DataTypes.STRING, allowNull: true, defaultValue: ''},
+    read: {type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false}
 
 })
 
