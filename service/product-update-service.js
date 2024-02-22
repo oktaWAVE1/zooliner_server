@@ -66,7 +66,7 @@ const update = async (timeOffset) => {
                             const date = new Date()
                             const timeStampLog = date.toLocaleString()
 
-                            await fs.appendFile(`../server/logs/logs.txt`, `${timeStampLog} Ошибка: ${e} \n`, (err) => {
+                            await fs.appendFile(`.logs/logs.txt`, `${timeStampLog} Ошибка: ${e} \n`, (err) => {
                                 if (err) {
                                     console.log(err);
                                 }
@@ -82,7 +82,7 @@ const update = async (timeOffset) => {
                 const date = new Date()
                 const timeStampLog = date.toLocaleString()
 
-                await fs.appendFile(`../server/logs/logs.txt`, `${timeStampLog} Ошибка: ${e} \n`, (err) => {
+                await fs.appendFile(`./logs/logs.txt`, `${timeStampLog} Ошибка: ${e} \n`, (err) => {
                     if (err) {
                         console.log(err);
                     }
@@ -185,7 +185,7 @@ async function updateProduct (pr, manufacturers) {
         const date = new Date()
         const timeStampLog = date.toLocaleString()
 
-        await fs.appendFile(`../server/logs/logs.txt`, `${timeStampLog} Ошибка: ${e} \n`, (err) => {
+        await fs.appendFile(`./logs/logs.txt`, `${timeStampLog} Ошибка: ${e} \n`, (err) => {
             if (err) {
                 console.log(err);
             }

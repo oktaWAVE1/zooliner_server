@@ -53,7 +53,7 @@ class UserController {
 
     }
 
-    async resendActivationLink (req, res, nex){
+    async resendActivationLink (req, res, next){
         try {
             const {email} = req.body
             const user = await User.findOne({where: {email}})
