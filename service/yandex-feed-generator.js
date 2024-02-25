@@ -86,7 +86,7 @@ async function yandexFeedGenerator () {
             .replaceAll("&", "&amp;")
             // .replaceAll("'", "&apos;")
             // .replaceAll("\"", "&quot;")
-        await fs.writeFile('./static/yandexfeed.yml', feed, async (err) => {
+        await fs.writeFile('./static/xml/yandexfeed.yml', feed, async (err) => {
             await fs.appendFile(`./logs/logs.txt`, `${err} \n`, (err) => {
                 if (err) {
                     console.debug(err);

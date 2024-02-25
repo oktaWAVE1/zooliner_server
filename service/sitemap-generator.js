@@ -51,7 +51,7 @@ async function sitemapGenerator () {
                 </url>`)
         })
         const sitemap = template.replace("%urls%", pages.join('\n'))
-        await fs.writeFile('./static/sitemap.xml', sitemap, async (err) => {
+        await fs.writeFile('./static/xml/sitemap.xml', sitemap, async (err) => {
             await fs.appendFile(`./logs/logs.txt`, `${err} \n`, (err) => {
                 if (err) {
                     console.log(err);

@@ -27,6 +27,17 @@ app.use(function(req, res, next) {
     res.setHeader('Cache-Control', 'no-cache');
     next();
 })
+
+
+app.use('/xml', express.static(path.resolve(__dirname, 'static/xml'), {
+    setHeaders: function(res, path) {
+        res.set("Access-Control-Allow-Origin", "*");
+        // res.set("Access-Control-Allow-Headers");
+        res.set("Access-Control-Allow-Methods","GET, OPTIONS");
+        res.set("X-Powered-By",' 3.2.1')
+        res.type("application/xml");
+    }
+}))
 app.use(express.static(path.resolve(__dirname, 'static')))
 app.use(fileUpload({}))
 app.use('/api', router)
