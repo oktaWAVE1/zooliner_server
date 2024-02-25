@@ -36,6 +36,7 @@ app.use('/xml', express.static(path.resolve(__dirname, 'static/xml'), {
         res.set("Access-Control-Allow-Methods","GET, OPTIONS");
         res.set("X-Powered-By",' 3.2.1')
         res.type("application/xml");
+        res.status(200)
     }
 }))
 app.use(express.static(path.resolve(__dirname, 'static')))
