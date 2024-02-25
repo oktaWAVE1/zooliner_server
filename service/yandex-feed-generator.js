@@ -28,7 +28,7 @@ async function yandexFeedGenerator () {
            
 %offers%                                           
                
-            </offer>
+    
         </offers>
         
     </shop>
