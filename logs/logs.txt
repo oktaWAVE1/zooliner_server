@@ -1371,3 +1371,72 @@ null
 null 
 null 
 null 
+22.02.2024, 11:50:17 Ошибка: Error: connect ECONNREFUSED 46.161.49.138:465 
+22.02.2024, 11:45:56 Ошибка: повторяющееся значение ключа нарушает ограничение уникальности "baskets_pkey" 
+22.02.2024, 11:45:56 Ошибка: Не авторизован 
+22.02.2024, 11:45:56 Ошибка: Подтвердите аккаунт по электронной почте 
+null 
+23.02.2024, 11:46:34 Ошибка: SequelizeForeignKeyConstraintError: INSERT или UPDATE в таблице "products" нарушает ограничение внешнего ключа "products_brandId_fkey" 
+23.02.2024, 11:46:34 Ошибка: SequelizeForeignKeyConstraintError: INSERT или UPDATE в таблице "products" нарушает ограничение внешнего ключа "products_brandId_fkey" 
+23.02.2024, 11:46:34 Ошибка: SequelizeForeignKeyConstraintError: INSERT или UPDATE в таблице "products" нарушает ограничение внешнего ключа "products_brandId_fkey" 
+23.02.2024, 11:46:34 Ошибка: SequelizeForeignKeyConstraintError: INSERT или UPDATE в таблице "products" нарушает ограничение внешнего ключа "products_brandId_fkey" 
+22.02.2024, 11:45:56 Ошибка: Подтвердите аккаунт по электронной почте 
+22.02.2024, 11:45:56 Ошибка: Подтвердите аккаунт по электронной почте 
+22.02.2024, 11:45:56 Ошибка: Подтвердите аккаунт по электронной почте 
+22.02.2024, 11:45:56 Ошибка: Подтвердите аккаунт по электронной почте 
+22.02.2024, 11:45:56 Ошибка: Подтвердите аккаунт по электронной почте 
+22.02.2024, 11:45:56 Ошибка: Подтвердите аккаунт по электронной почте 
+null 
+null 
+category is associated to product using an alias. You must use the 'as' keyword to specify the alias within your include statement. 
+null 
+Cannot read properties of undefined (reading '0') 
+null 
+Cannot read properties of undefined (reading '0') 
+null 
+Cannot read properties of undefined (reading '0') 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 

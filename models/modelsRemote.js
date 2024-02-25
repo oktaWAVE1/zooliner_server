@@ -145,6 +145,7 @@ const SellsCounterRemote = sequelize.define('sellsCounterRemote', {
         siteOrderId: {type: DataTypes.BIGINT},
         siteUserId: {type: DataTypes.INTEGER},
         bonusPointsUsed: {type: DataTypes.FLOAT, default: 0},
+        refund: {type: DataTypes.BOOLEAN, default: false, allowNull: false}
 
     }, {
         timestamps: false,
