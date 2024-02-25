@@ -33,7 +33,7 @@ async function yandexFeedGenerator () {
         
     </shop>
 </yml_catalog>`
-        const categories = await Category.findAll({where: {published: true}})
+        const categories = await Category.findAll()
         const products = await Product.findAll({where: {published: true, productId: 0}, include: [
                 {model: Product, as: 'children'},
                 {model: Category, as: 'category'},
@@ -57,7 +57,7 @@ async function yandexFeedGenerator () {
             <picture>${process.env.API_URL}/images/products/${p.product_images[0].img}</picture>
             <description>
                 <![CDATA[          
-                    ${p.description || `<div><p>${p.title}</p><p>${p.shortDesription}</p></div>`}
+                    ${p.description || `<div><p>${p.title}</p><p>${p.shortDescription}</p></div>`}
                 ]]>
             </description>
         </offer>`)
