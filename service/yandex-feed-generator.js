@@ -5,9 +5,15 @@ const fs = require('fs')
 async function yandexFeedGenerator () {
     try {
         const date = new Date
+        const year = date.getFullYear()
+        const month = date.getMonth()+1
+        const day = date.getDate()
+        const hours = date.getHours()
+        const minutes = date.getMinutes()
+        const dateTime = `${year}-${String(month).length>1 ? day : `0${month}`}-${String(day).length>1 ? day : `0${day}`}T${hours}:${minutes}`
         let template =
             `<?xml version="1.0" encoding="UTF-8"?>
-<yml_catalog date="${date}">
+<yml_catalog date="${dateTime}">
     <shop>
         <name>ЗооЛАЙНЕР</name>
         <company>ИП Косыгин С.В.</company>
