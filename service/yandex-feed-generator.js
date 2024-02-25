@@ -53,7 +53,7 @@ async function yandexFeedGenerator () {
             ${p.discountedPrice>0 ? `<oldprice>${p.price}</oldprice>` : ''}
             <enable_auto_discounts>true</enable_auto_discounts>
             <currencyId>RUR</currencyId>
-            <categoryId>${p?.category[0]}</categoryId>
+            <categoryId>${p?.category[0].id}</categoryId>
             <picture>${process.env.API_URL}/images/products/${p.product_images[0].img}</picture>
             <description>
                 <![CDATA[          
@@ -70,7 +70,7 @@ async function yandexFeedGenerator () {
                 ${pc.discountedPrice>0 && `<oldprice>${pc.price}</oldprice>`}
                 <enable_auto_discounts>true</enable_auto_discounts>
                 <currencyId>RUR</currencyId>
-                <categoryId>${p?.category[0]}</categoryId>
+                <categoryId>${p?.category[0].id}</categoryId>
                 <picture>${process.env.API_URL}/images/products/${p.product_images[0].img}</picture>
                 <description>            
                     <![CDATA[          
