@@ -25,7 +25,7 @@ async function yandexFeedGenerator () {
 %categories%
         </categories>
         <offers>
-            <offer id="9012">
+           
 %offers%                                           
                
             </offer>
