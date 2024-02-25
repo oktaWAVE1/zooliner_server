@@ -48,7 +48,7 @@ async function yandexFeedGenerator () {
             if(p.children.length===0){
                 offers.push(`                        <offer id="${p.id}">
             <name>${p.title} ${p.shortDescription}</name>
-            <url>${process.env.CLIENT_URL}/product/%{p.id}</url>
+            <url>${process.env.CLIENT_URL}/product/${p.id}</url>
             <price>${p.discountedPrice>0 ? p.discountedPrice : p.price}</price>
             ${p.discountedPrice>0 ? `<oldprice>${p.price}</oldprice>` : ''}
             <enable_auto_discounts>true</enable_auto_discounts>
@@ -65,7 +65,7 @@ async function yandexFeedGenerator () {
                 p.children.filter(pc => pc.published).forEach(pc => {
                     offers.push(`            <offer id="${pc.id}">
                 <name>${p.title} ${p.shortDescription} ${pc.title}</name>
-                <url>${process.env.CLIENT_URL}/product/%{p.id}</url>
+                <url>${process.env.CLIENT_URL}/product/${p.id}</url>
                 <price>${pc.discountedPrice>0 ? pc.discountedPrice : pc.price}</price>
                 ${pc.discountedPrice>0 && `<oldprice>${pc.price}</oldprice>`}
                 <enable_auto_discounts>true</enable_auto_discounts>
