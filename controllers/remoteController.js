@@ -1,17 +1,12 @@
-const {ProductRemote, ManufacturersRemote, CustomersRemote, CategoryProductRemote, CategoryRemote} = require("../models/modelsRemote");
-const {Product, Brand, Product_Category} = require("../models/models")
-const ApiError = require("../error/ApiError");
-const {Op} = require('sequelize')
-const fs = require("fs");
+const {ProductRemote, CustomersRemote, CategoryProductRemote, CategoryRemote} = require("../models/modelsRemote");
+
 
 
 class RemoteController {
 
     async getAllRemoteProducts (req, res) {
-        const remoteProducts = await ProductRemote.findAll({include: [
-                {model: CategoryProductRemote, include: [
-                        {model: CategoryRemote}
-                    ]}
+        const remoteProducts = await ProductRemote.findAll({where: {id_родительского: 0},include: [
+                {model: ProductRemote, as: 'children'},
             ]})
 
         return res.json(remoteProducts)
