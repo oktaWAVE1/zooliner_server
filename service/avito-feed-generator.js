@@ -1,6 +1,6 @@
 const {Category, Product, ProductImages} = require('../models/models')
 const fs = require('fs')
-
+const {Op} = require('sequelize')
 
 async function avitoFeedGenerator () {
     try {
@@ -43,7 +43,7 @@ async function avitoFeedGenerator () {
     <AdStatus>Free</AdStatus>`
         const products = await Product.findAll({order: [[{model: Category}, 'id', "ASC"]], where: {published: true, productId: 0}, include: [
                 {model: Product, as: 'children'},
-                {model: Category, as: 'category'},
+                {model: Category, as: 'category', where: {[Op.lt]: 0}},
                 {model: ProductImages, as: 'product_images'}
             ]})
         const ads = []
