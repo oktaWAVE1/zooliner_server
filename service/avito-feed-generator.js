@@ -52,7 +52,7 @@ async function avitoFeedGenerator () {
     <Price>${p.discountedPrice>0 ? p.discountedPrice : p.price}</Price>
     <Images>
     ${p.product_images.map(i =>
-        `    <Image url="process.env.API_URL}/images/products/${i.img}"/>`
+        `    <Image url="${process.env.API_URL}/images/products/${i.img}"/>`
                 )}
     </Images>
     ${content}
@@ -65,7 +65,7 @@ async function avitoFeedGenerator () {
     <Price>${pc.discountedPrice>0 ? pc.discountedPrice : pc.price}</Price>
     <Images>
     ${p.product_images.map(i =>
-                        `    <Image url="process.env.API_URL}/images/products/${i.img}"/>`
+                        `    <Image url="${process.env.API_URL}/images/products/${i.img}"/>`
                     )}
     </Images>
     ${content}
