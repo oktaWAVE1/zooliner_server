@@ -1659,3 +1659,21 @@ null
 s.replace is not a function 
 null 
 null 
+s.replace is not a function 
+null 
+null 
+s.replace is not a function 
+null 
+null 
+s.replace is not a function 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 
+null 

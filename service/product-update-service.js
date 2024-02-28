@@ -103,6 +103,18 @@ async function updateProduct (pr, manufacturers) {
         categories.push(CFPR.categoriesRemote.id_категории)
     })
     let published = false
+    let abc = null
+
+    if (pr.children.length===0){
+        abc = pr.ABC
+    } else {
+        pr.children.forEach(pc => {
+            if(!abc) abc = pc.ABC
+            if(abc==="C" && pc.ABC==="B"||"A") abc = pc.ABC
+            if(abc==="B" && pc.ABC==="A") abc = pc.ABC
+        })
+    }
+
 
     if (pr.Published !== 0) {
         if (pr.product_in_stock > 0) {
@@ -169,6 +181,7 @@ async function updateProduct (pr, manufacturers) {
             brandId: manufacturers.get(pr.производитель) || null,
             special: Boolean(pr.Акция),
             productId: pr.id_родительского,
+            abc
         }
         if (content.title === null || content.title === 'Новый товар') return
         if (product?.id) {

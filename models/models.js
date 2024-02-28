@@ -114,7 +114,8 @@ const Product = sequelize.define('product', {
     published: {type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false},
     inStock: {type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true},
     hidden: {type: DataTypes.BOOLEAN, defaultValue: false},
-    specialBonus: {type: DataTypes.FLOAT, defaultValue: 0}
+    specialBonus: {type: DataTypes.FLOAT, defaultValue: 0},
+    abc: {type: DataTypes.STRING, length: 1}
 }, {timestamps: false})
 
 const ProductImages = sequelize.define('product_images', {

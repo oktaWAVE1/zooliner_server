@@ -1,6 +1,5 @@
 const {Category, Product, ProductImages} = require('../models/models')
 const fs = require('fs')
-const {Op} = require('sequelize')
 
 async function avitoFeedGenerator () {
     try {
@@ -41,9 +40,9 @@ async function avitoFeedGenerator () {
     </Delivery>
     <ContactPhone>+7 (918) 495-85-13</ContactPhone>
     <AdStatus>Free</AdStatus>`
-        const products = await Product.findAll({order: [[{model: Category}, 'id', "ASC"]], where: {published: true, productId: 0}, include: [
+        const products = await Product.findAll({where: {published: true, productId: 0, abc: "A"}, include: [
                 {model: Product, as: 'children'},
-                {model: Category, as: 'category', where: {[Op.lt]: 0}},
+                {model: Category, as: 'category'},
                 {model: ProductImages, as: 'product_images'}
             ]})
         const ads = []
@@ -52,7 +51,6 @@ async function avitoFeedGenerator () {
         for (let p of filteredProducts) {
             let shortTitle = ''
             let fullTitle = `${p.title}. ${p.shortDescription}`
-            console.log(fullTitle)
             if (fullTitle.length<=50){
                 shortTitle = fullTitle
                 fullTitle = ''
