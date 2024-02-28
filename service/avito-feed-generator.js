@@ -17,7 +17,7 @@ async function avitoFeedGenerator () {
 %ads%
 </Ads>`
 
-        const content = `<AllowEmail>Да</AllowEmail>
+        let content = `<AllowEmail>Да</AllowEmail>
     <InternetCalls>Нет</InternetCalls>
     <Condition>Новое</Condition>
     <Category>Товары для животных</Category>
@@ -25,6 +25,9 @@ async function avitoFeedGenerator () {
     <Description>
 <![CDATA[
 <strong>ЗооЛАЙНЕР!</strong><br/>
+%fullTitle%
+%description%
+%category%
 Сухие и влажные корм для собак и кошек! Наполнители, переноски, одежда, аксессуары, и другие товары для ваших любимцев.<br/>
 Бесплатная доставка по Анапе, Анапской и Супсеху при заказе от 1000 рублей, возможен самовывоз. Доставка в
 Витязево, Гостагаевскую, Благовещенскую, Натухаевскую, Сукко, Варениковскую. <strong>Доставка в день заказа!</strong><br/> 
@@ -38,41 +41,67 @@ async function avitoFeedGenerator () {
     </Delivery>
     <ContactPhone>+7 (918) 495-85-13</ContactPhone>
     <AdStatus>Free</AdStatus>`
-        const products = await Product.findAll({where: {published: true, productId: 0}, include: [
+        const products = await Product.findAll({order: [[{model: Category}, 'id', "ASC"]], where: {published: true, productId: 0}, include: [
                 {model: Product, as: 'children'},
                 {model: Category, as: 'category'},
                 {model: ProductImages, as: 'product_images'}
             ]})
         const ads = []
-        products.filter(p => p?.product_images?.length>0 && p.price>1 && p?.category?.length>0).forEach(p => {
-            if(p.children.length===0){
-                ads.push(`  <Ad>
-    <Id>${p.id}</Id>
-    <Title>${p.title} ${p.shortDescription}</Title>
-    <Price>${p.discountedPrice>0 ? p.discountedPrice : p.price}</Price>
-    <Images>
-    ${p.product_images.map(i =>
-        `    <Image url="${process.env.API_URL}/images/products/${i.img}"/>`
-                )}
-    </Images>
-    ${content}
-</Ad>`)
+
+        const filteredProducts = products.filter(p => p?.product_images?.length>0 && p?.category?.length>0)
+        for (let p of filteredProducts) {
+            let shortTitle = ''
+            const fullTitle = `${p.title}. ${p.shortDescription}`
+            if (fullTitle.length<=50){
+                shortTitle = fullTitle
+                content = content.replace("%fullTitle%", '')
             } else {
-                p.children.filter(pc => pc.published && pc.price>1).forEach(pc => {
-                    ads.push(`  <Ad>
-    <Id>${pc.id}</Id>
-    <Title>${p.title} ${p.shortDescription} ${pc.title}</Title>
-    <Price>${pc.discountedPrice>0 ? pc.discountedPrice : pc.price}</Price>
+                content = content.replace("%fullTitle%", `${fullTitle} <br/>`)
+                const words = fullTitle.split(" ")
+                for (let word of words){
+                    if(`${shortTitle} ${word}`.length<=50){
+                        shortTitle = `${shortTitle}${word} `
+                    } else {
+                        break
+                    }
+                }
+                shortTitle = shortTitle.replace(/,\s*$/, "").trim();
+            }
+            let desc = ''
+            let lowestPrice = 0
+            if (p.children.length > 0) {
+                let items = []
+                p.children.filter(pc => pc.price > 2 && pc.inStock).sort((a,b) => a.price-b.price).forEach(pc => {
+                    items.push(`<li>${pc.title} - ${pc.discountedPrice > 0 ? pc.discountedPrice : pc.price} ₽</li>`)
+                    if (lowestPrice === 0) {
+                        lowestPrice = pc.discountedPrice > 0 ? pc.discountedPrice : pc.price
+                    } else {
+                        const price = pc.discountedPrice > 0 ? pc.discountedPrice : pc.price
+                        if (price < lowestPrice) {
+                            lowestPrice = price
+                        }
+                    }
+
+                })
+                desc = `<ul>${items.join("\n")}</ul>`
+                if(items.length===0) continue
+            }
+            if(desc.length===0 && !p.inStock) continue
+
+
+            ads.push(`  <Ad>
+    <Id>${p.id}</Id>
+    <Title>${shortTitle}</Title>
+    <Price>${lowestPrice> 0 ? lowestPrice : p.discountedPrice > 0 ? p.discountedPrice : p.price}</Price>
     <Images>
     ${p.product_images.map(i =>
-                        `    <Image url="${process.env.API_URL}/images/products/${i.img}"/>`
-                    )}
+                `    <Image url="${process.env.API_URL}/images/products/${i.img}"/>`
+            )}
     </Images>
-    ${content}
+    ${content.replace('%description%', desc).replace('%category%', `<p>${p.category[0]?.description}</p>`)}
 </Ad>`)
-                })
-            }
-        })
+        }
+
         const feed = template.replace("%ads%", ads.join('\n'))
             .replaceAll("&", "&amp;")
         await fs.writeFile('./static/xml/avitofeed.xml', feed, async (err) => {
