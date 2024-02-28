@@ -16,11 +16,12 @@ class UserController {
 
     async registration (req, res, next) {
         try {
-            const {email, password, name, telephone} = req.body
+            let {email, password, name, telephone} = req.body
             if (!email || !password || !name) {
 
                 return next(ApiError.badRequest('Не заполнены необходимые данные'))
             }
+            email = email.toLowerCase()
             const candidateEmail = await User.findOne({where: {email}})
             const candidatePhone = await User.findOne({where: {telephone}})
 
@@ -55,7 +56,8 @@ class UserController {
 
     async resendActivationLink (req, res, next){
         try {
-            const {email} = req.body
+            let {email} = req.body
+            email = email.toLowerCase()
             const user = await User.findOne({where: {email}})
             if (!user){
                 return next(ApiError.badRequest('Пользователь не найден'))
@@ -68,9 +70,13 @@ class UserController {
     }
 
     async login (req, res, next) {
-        try {
+         try {
 
-            const {email, telephone, password} = req.body
+            let {email, telephone, password} = req.body
+            if(email){
+                email = email.toLowerCase()
+            }
+
             const user = await User.findOne({where: {email}}) || await User.findOne({where: {telephone}})
 
             if (!user) {
@@ -237,7 +243,8 @@ class UserController {
 
     async modify (req, res, next) {
         try {
-            const {email, password, name, telephone, id, newPassword, address} = req.body
+            let {email, password, name, telephone, id, newPassword, address} = req.body
+            email = email.toLowerCase()
             const user = await User.findOne({where: {id}})
             let comparePassword = bcrypt.compareSync(password, user.password)
 
