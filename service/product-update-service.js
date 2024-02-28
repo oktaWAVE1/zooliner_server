@@ -95,66 +95,73 @@ const update = async (timeOffset) => {
 }
 
 async function updateProduct (pr, manufacturers) {
-    const categories = []
-    pr.categoriesOfProductsRemotes.forEach(CFPR => {
-        categories.push(CFPR.categoriesRemote.id_категории)
-    })
-    pr.parent?.categoriesOfProductsRemotes.forEach(CFPR => {
-        categories.push(CFPR.categoriesRemote.id_категории)
-    })
     let published = false
     let abc = null
 
-    if (pr.children.length===0){
-        abc = pr.ABC
-    } else {
-        pr.children.forEach(pc => {
-            if(!abc) abc = pc.ABC
-            if(abc==="C" && pc.ABC==="B"||"A") abc = pc.ABC
-            if(abc==="B" && pc.ABC==="A") abc = pc.ABC
+    try{
+        const categories = []
+        pr?.categoriesOfProductsRemotes.forEach(CFPR => {
+            categories.push(CFPR.categoriesRemote.id_категории)
         })
-    }
+        pr?.parent?.categoriesOfProductsRemotes.forEach(CFPR => {
+            categories.push(CFPR.categoriesRemote.id_категории)
+        })
 
 
-    if (pr.Published !== 0) {
-        if (pr.product_in_stock > 0) {
-            published = true
+        if (pr?.children.length===0){
+            abc = pr.ABC
+        } else {
+            pr?.children.forEach(pc => {
+                if(!abc) abc = pc.ABC
+                if(abc==="C" && pc.ABC==="B"||"A") abc = pc.ABC
+                if(abc==="B" && pc.ABC==="A") abc = pc.ABC
+            })
         }
-        if (pr.product_in_stock <= 0) {
-            if (categories.some(c => [2, 4, 6].includes(c))) {
-                if (pr.children.length > 0 && !pr.Акция) {
-                    published = pr.children.some(ch => ch.Published !== 0)
-                }
-                if (pr.id_родительского > 0 && !pr.Акция) {
-                    published = true
-                }
-            } else {
-                if (pr.children.length > 0) {
-                    published = pr.children.some(ch => ch.product_in_stock > 0 && ch.published===true)
-                }
 
+
+        if (pr?.Published !== 0) {
+            if (pr?.product_in_stock > 0) {
+                published = true
+            }
+            if (pr?.product_in_stock <= 0) {
+                if (categories.some(c => [2, 4, 6].includes(c))) {
+                    if (pr?.children.length > 0 && !pr.Акция) {
+                        published = pr?.children.some(ch => ch.Published !== 0)
+                    }
+                    if (pr?.id_родительского > 0 && !pr?.Акция) {
+                        published = true
+                    }
+                } else {
+                    if (pr?.children.length > 0) {
+                        published = pr?.children.some(ch => ch.product_in_stock > 0 && ch.published===true)
+                    }
+
+                }
+            }
+
+            if(pr?.id_родительского !==0){
+                const parent = await ProductRemote.findOne({
+                    where: {Код: pr.id_родительского}, include: [
+                        {
+                            model: CategoryProductRemote, include: [
+                                {model: CategoryRemote}
+                            ]
+                        },
+                        {model: ProductRemote, as: 'children'},
+                        {model: ProductRemote, as: 'parent', include: [
+                                {model: CategoryProductRemote, include: [
+                                        {model: CategoryRemote}
+                                    ]
+                                }]
+                        },
+                    ]
+                })
+                await updateProduct(parent, manufacturers)
             }
         }
 
-        if(pr?.id_родительского !==0){
-            const parent = await ProductRemote.findOne({
-                where: {Код: pr.id_родительского}, include: [
-                    {
-                        model: CategoryProductRemote, include: [
-                            {model: CategoryRemote}
-                        ]
-                    },
-                    {model: ProductRemote, as: 'children'},
-                    {model: ProductRemote, as: 'parent', include: [
-                            {model: CategoryProductRemote, include: [
-                                    {model: CategoryRemote}
-                                ]
-                            }]
-                    },
-                ]
-            })
-            await updateProduct(parent, manufacturers)
-        }
+    } catch (e) {
+        console.log(e)
     }
 
 
