@@ -51,12 +51,12 @@ async function avitoFeedGenerator () {
         const filteredProducts = products.filter(p => p?.product_images?.length>0 && p?.category?.length>0)
         for (let p of filteredProducts) {
             let shortTitle = ''
-            const fullTitle = `${p.title}. ${p.shortDescription}`
+            let fullTitle = `${p.title}. ${p.shortDescription}`
+            console.log(fullTitle)
             if (fullTitle.length<=50){
                 shortTitle = fullTitle
-                content = content.replace("%fullTitle%", '')
+                fullTitle = ''
             } else {
-                content = content.replace("%fullTitle%", `${fullTitle} <br/>`)
                 const words = fullTitle.split(" ")
                 for (let word of words){
                     if(`${shortTitle} ${word}`.length<=50){
@@ -98,7 +98,7 @@ async function avitoFeedGenerator () {
                 `    <Image url="${process.env.API_URL}/images/products/${i.img}"/>`
             )}
     </Images>
-    ${content.replace('%description%', desc).replace('%category%', `<p>${p.category[0]?.description}</p>`)}
+    ${content.replace("%fullTitle%", `${fullTitle}<br/>`).replace('%description%', desc).replace('%category%', `<p>${p.category[0]?.description}</p>`)}
 </Ad>`)
         }
 
