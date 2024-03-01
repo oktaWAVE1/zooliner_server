@@ -112,10 +112,11 @@ class ProductController {
 
     async getPublishedProductInCategory (req, res) {
         const {id} = req.params
+        console.log()
         const subCategories = await Category.findAll({where: {categoryId: id, published: true}, order:[['ordering', 'ASC']], include: [
             {model: CategoryImages, as: 'category_images'}]})
         const category = await Category.findByPk(id)
-        if(!category){
+        if(!category && Number(id)!==0){
             return res.status(404).json(`Nothing`)
         }
         if (subCategories.length>0) {
