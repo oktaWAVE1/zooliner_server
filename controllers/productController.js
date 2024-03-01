@@ -115,6 +115,9 @@ class ProductController {
         const subCategories = await Category.findAll({where: {categoryId: id, published: true}, order:[['ordering', 'ASC']], include: [
             {model: CategoryImages, as: 'category_images'}]})
         const category = await Category.findByPk(id)
+        if(!category){
+            return res.status(404).json(`Nothing`)
+        }
         if (subCategories.length>0) {
 
             return res.json({subCategories: subCategories, category: category})
@@ -144,6 +147,9 @@ class ProductController {
                 {model: ProductAttribute, as: 'productAttribute', through: {attributes: []}},
                 {model: ProductImages, as: 'product_images'}
             ]})
+        if(!product) {
+            return res.status(404).json(`No product`)
+        }
         return res.json(product)
 
     }

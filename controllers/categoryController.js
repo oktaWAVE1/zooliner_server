@@ -55,6 +55,9 @@ class CategoryController {
                 {model: CategoryImages}
             ]})
 
+        if(!category){
+            return res.status(404).json('No category')
+        }
         return res.json(category)
     }
 
