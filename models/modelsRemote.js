@@ -156,6 +156,21 @@ const SellsCounterRemote = sequelize.define('sellsCounterRemote', {
     }
 )
 
+const DeliveryRemote = sequelize.define('deliveryRemote', {
+        id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
+        name: {type: DataTypes.STRING},
+        freeSum: {type: DataTypes.INTEGER},
+        cost: {type: DataTypes.INTEGER},
+
+    }, {
+        timestamps: false,
+        freezeTableName: true,
+        tableName: `Delivery`,
+        charset: 'utf8',
+        collate: 'utf8_unicode_ci'
+    }
+)
+
 
 ProductRemote.hasMany(CategoryProductRemote, {foreignKey: 'код_товара', foreignKeyConstraint: true})
 CategoryProductRemote.belongsTo(ProductRemote, {foreignKey: 'код_товара'})
@@ -164,12 +179,16 @@ CategoryRemote.hasMany(CategoryProductRemote, {foreignKey: "название_к�
 CategoryProductRemote.belongsTo(CategoryRemote, {foreignKey: "название_категории"})
 
 SellsCounterRemote.hasMany(SellsRemote, {foreignKey: '№ реализации'})
-SellsRemote.belongsTo(SellsCounterRemote)
+SellsRemote.belongsTo(SellsCounterRemote, {foreignKey: 'Счетчик'})
 
 ProductRemote.hasMany(ProductRemote, {as: "children", foreignKey: 'id_родительского', foreignKeyConstraint: true})
 ProductRemote.belongsTo(ProductRemote, {as: "parent", foreignKey: 'id_родительского', foreignKeyConstraint: true})
 
+SellsCounterRemote.belongsTo(DeliveryRemote, {foreignKey: "deliveryId"})
+DeliveryRemote.hasMany(SellsCounterRemote, {foreignKey: "deliveryId"})
 
+SellsCounterRemote.belongsTo(CustomersRemote, {foreignKey: "userId"})
+CustomersRemote.hasMany(SellsCounterRemote, {foreignKey: "userId"})
 
 module.exports = {
     ProductRemote,
@@ -178,5 +197,7 @@ module.exports = {
     CategoryProductRemote,
     CustomersRemote,
     ManufacturersRemote,
-    SellsRemote
+    SellsRemote,
+    SellsCounterRemote,
+    DeliveryRemote,
 }
