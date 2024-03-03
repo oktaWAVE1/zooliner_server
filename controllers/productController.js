@@ -112,7 +112,7 @@ class ProductController {
 
     async getPublishedProductInCategory (req, res) {
         const {id} = req.params
-        if(!Number(id)){
+        if(!Number(id) && Number(id)!==0){
             return res.status(404).json(`Invalid category id`)
         }
         const subCategories = await Category.findAll({where: {categoryId: id, published: true}, order:[['ordering', 'ASC']], include: [
