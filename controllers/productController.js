@@ -112,7 +112,9 @@ class ProductController {
 
     async getPublishedProductInCategory (req, res) {
         const {id} = req.params
-        console.log()
+        if(!Number(id)){
+            return res.status(404).json(`Invalid category id`)
+        }
         const subCategories = await Category.findAll({where: {categoryId: id, published: true}, order:[['ordering', 'ASC']], include: [
             {model: CategoryImages, as: 'category_images'}]})
         const category = await Category.findByPk(id)
@@ -140,7 +142,9 @@ class ProductController {
 
     async getPublishedProduct (req, res) {
         const {id} = req.params
-
+        if(!Number(id)){
+            return res.status(404).json(`Invalid product id`)
+        }
         const product = await Product.findOne({where: {published: true, hidden: false, id}, order: [[{model: ProductImages},'master', 'DESC']],
                 include: [
                 {model: Brand, as: 'brand', attributes: ['name']},
@@ -157,6 +161,10 @@ class ProductController {
 
     async getProduct (req, res) {
         const {id} = req.params
+        if(!Number(id)){
+            return res.status(404).json(`Invalid product id`)
+        }
+
         const product = await Product.findOne({where: {id}, order: [[{model: ProductImages},'master', 'DESC']],
             include: [
                 {model: Brand, as: 'brand', attributes: ['name']},

@@ -119,8 +119,8 @@ class UserController {
                 }
             }).then(async (resp)=> {
                 if(!resp?.data?.response?.user_id){
-                    console.log(resp)
-                    return res.redirect(`${process.env.CLIENT_URL}/failed_auth`)
+
+                    return res.redirect(`${process.env.CLIENT_URL}`)
                 }
                 const user = await User.findOne({where: {vkId: data.user.id}})
 
@@ -129,7 +129,7 @@ class UserController {
                     const tokens = tokenService.generateJwt({...userDto});
                     await tokenService.saveToken(user.id, tokens.refreshToken)
                     res.cookie('refreshToken', tokens.refreshToken, {maxAge: 60*24*60*60*1000, httpOnly: true, sameSite: "none", secure: true})
-                    return res.redirect(`${process.env.CLIENT_URL}/check?accessToken=${tokens.accessToken}`)
+                    return res.redirect(`${process.env.CLIENT_URL}`)
                 }
 
                 await User.findOne({where: {email: resp.data.response.email}}).then(async (registeredEmailUser) => {
@@ -141,7 +141,7 @@ class UserController {
                     const tokens = tokenService.generateJwt({...userDto});
                     await tokenService.saveToken(registeredEmailUser.id, tokens.refreshToken)
                     res.cookie('refreshToken', tokens.refreshToken, {maxAge: 60*24*60*60*1000, httpOnly: true, sameSite: "none", secure: true})
-                    return res.redirect(`${process.env.CLIENT_URL}/check?accessToken=${tokens.accessToken}`)
+                    return res.redirect(`${process.env.CLIENT_URL}`)
                 } else {
                     const randomPass = await bcrypt.hash(uuid.v4(), 5)
                     const activationLink = uuid.v4()
@@ -166,7 +166,8 @@ class UserController {
                                 sameSite: "none",
                                 secure: true
                             })
-                            return res.redirect(`${process.env.CLIENT_URL}/check?accessToken=${tokens.accessToken}`)
+
+                            return res.redirect(`${process.env.CLIENT_URL}`)
 
 
                     })
