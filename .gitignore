@@ -1,5 +1,5 @@
 .env
 static
 models/modelsRemote.js
-logs
+logs/*
 node_modules
