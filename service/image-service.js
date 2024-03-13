@@ -5,7 +5,7 @@ const fs = require("fs");
 
 class ImageService {
     async saveImg(file, directory, width=200, fullWidth = 900) {
-
+        const simd = sharp.simd(false);
         let fileName = uuid.v4() + ".webp"
 
         await file.mv(directory+'/'+'full_file'+fileName).then(async () => {
