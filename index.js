@@ -13,6 +13,7 @@ const {update} = require('./service/product-update-service')
 const {sitemapGenerator} = require('./service/sitemap-generator')
 const {yandexFeedGenerator} = require('./service/yandex-feed-generator')
 const {avitoFeedGenerator} = require('./service/avito-feed-generator')
+const {updateRecovery} = require('./service/recovery')
 
 
 const port = process.env.PORT || 5000
@@ -55,6 +56,7 @@ const avitoFeedDailyUpdater = setInterval(() => avitoFeedGenerator(), 1000*60*60
 sitemapGenerator()
 yandexFeedGenerator()
 avitoFeedGenerator()
+updateRecovery()
 
 const start = async () => {
     try{
