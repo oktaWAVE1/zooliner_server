@@ -176,7 +176,6 @@ async function updateProduct (pr, manufacturers) {
             price: pr.Цена,
             title: pr.Наименование,
             shortDescription: pr["Наименование (крат опис)"],
-            description: pr["Полное описание"],
             weight: pr.Вес,
             // discountedPrice: pr.discountedPrice,
             // metaTitle: pr.metaTitle,

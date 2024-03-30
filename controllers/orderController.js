@@ -112,7 +112,7 @@ class OrderController {
                                 await BonusPoint.findOne({where: {userId}}).then(async(BP) => {
                                     let currentQty = Number(BP.currentQty) - bonusPointsUsed
                                     let frozenPoints = Number(BP.frozenPoints) + bonusPointsUsed
-                                    BonusPoint.update({currentQty, frozenPoints}, {where: {userId}})
+                                    await BonusPoint.update({currentQty, frozenPoints}, {where: {userId}})
                                     const log = `Списание ${bonusPointsUsed} баллов за заказ ${order.orderNumber}`
                                     await BonusPointsLog.create({qtyChanges: -(bonusPointsUsed), orderId, description: log, bonusPointId: BP.id})
                                 })
