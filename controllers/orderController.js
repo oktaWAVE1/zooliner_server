@@ -83,7 +83,7 @@ class OrderController {
             const {orderId, userId, paymentMethodId, deliveryMethodId, name, address, telephone, comment, customerEmail} = req.body
             let {bonusPoints} = req.body
             const bonusPointsUsed = Number(bonusPoints) || 0
-            await Order.findByPk(orderId).then(async (data) => {
+            await Order.findByPk(orderId, {include: [{model: OrderItem}]}).then(async (data) => {
                 const orderAddress = address || data.orderAddress
                 const customerName = name || data.customerName
                 const customerTel = telephone || data.customerTel
@@ -99,9 +99,9 @@ class OrderController {
                                     {model: Product}
                                 ]},
                         ]}).then(async (order) => {
+                        console.log(order)
                         if(userId){
                             const basket = await Basket.findOne({where: {userId}})
-                        console.log('***', basket)
                             if (userId && Object.keys(basket).length>0) {
                                 await BasketProduct.destroy({where: {basketId: basket.id}})
                             }
@@ -172,8 +172,7 @@ class OrderController {
                 accessLink
             }
             ).then(async(order) => {
-                console.log(order)
-                const basketItems = await BasketProduct.findAll({where: {basketId: basket.id}, include: [
+                   const basketItems = await BasketProduct.findAll({where: {basketId: basket.id}, include: [
                         {model: Product, as: 'product', include: [
                                 {model: Product, as: 'parent'}
                             ]},
