@@ -244,7 +244,8 @@ class UserController {
 
     async modify (req, res, next) {
         try {
-            let {email, password, name, telephone, id, newPassword, address} = req.body
+            let {email, password, name, telephone, newPassword, address} = req.body
+            const {id} = req.user
             email = email.toLowerCase()
             const user = await User.findOne({where: {id}})
             let comparePassword = bcrypt.compareSync(password, user.password)
@@ -305,7 +306,8 @@ class UserController {
     async sendResetPassMail (req, res, next) {
         try {
 
-            const {email} = req.body
+            let {email} = req.body
+            email = email.toLowerCase()
             const user = await User.findOne({where: {email}})
 
             if(!user){

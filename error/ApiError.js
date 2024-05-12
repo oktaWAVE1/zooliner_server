@@ -1,6 +1,6 @@
 const fs = require("fs");
 const date = new Date()
-const timeStampLog = date.toLocaleString()
+
 
 class ApiError extends Error {
     constructor(status, message) {
@@ -10,6 +10,7 @@ class ApiError extends Error {
     }
     static async badRequest (message) {
         console.log(message)
+        const timeStampLog = date.toLocaleString()
         await fs.appendFile(`./logs/logs.txt`, `${timeStampLog} Ошибка: ${message} \n`, (err) => {
             if (err) {
                 console.log(404, err);
@@ -19,6 +20,7 @@ class ApiError extends Error {
     }
     static async needEmailApproval (message) {
         console.log(message)
+        const timeStampLog = date.toLocaleString()
         await fs.appendFile(`./logs/logs.txt`, `${timeStampLog} Ошибка: ${message} \n`, (err) => {
             if (err) {
                 console.log(423, err);
@@ -28,6 +30,7 @@ class ApiError extends Error {
     }
     static async internal (message) {
         console.log(500, message)
+        const timeStampLog = date.toLocaleString()
         await fs.appendFile(`./logs/logs.txt`, `${timeStampLog} Ошибка: ${message} \n`, (err) => {
             if (err) {
                 console.log(err);
@@ -37,6 +40,7 @@ class ApiError extends Error {
     }
     static async forbidden (message) {
         console.log(403, message)
+        const timeStampLog = date.toLocaleString()
         await fs.appendFile(`./logs/logs.txt`, `${timeStampLog} Ошибка: ${message} \n`, (err) => {
             if (err) {
                 console.log(err);
