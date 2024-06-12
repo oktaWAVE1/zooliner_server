@@ -168,7 +168,7 @@ class UserController {
                         const randomPass = await bcrypt.hash(uuid.v4(), 5)
                         const activationLink = uuid.v4()
                         await User.create({
-                            email: resp.data.response.email,
+                            email: resp.data.response.email || `${data.user.id}user@vk.com`,
                             password: randomPass,
                             name: `${data?.user?.first_name} ${data?.user?.last_name}`,
                             telephone: '',
