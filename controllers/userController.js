@@ -15,6 +15,7 @@ class UserController {
     async registration(req, res, next) {
         try {
             let {email, password, name, telephone} = req.body
+            console.log({email, password, name, telephone})
             if (!email || !password || !name) {
 
                 return next(ApiError.badRequest('Не заполнены необходимые данные'))
@@ -53,12 +54,13 @@ class UserController {
                     secure: true
                 })
                 await mailService.sendActivationMail(email, process.env.API_URL + `/api/user/activate/${activationLink}`)
-                await Basket.create({userId: user.id})
-                await BonusPoint.create({userId: user.id})
+                await Basket.create({userId: user.id, id: user.id})
+                await BonusPoint.create({userId: user.id, id: user.id})
                 return res.json(tokens)
             })
 
         } catch (e) {
+            console.log(e)
             next(ApiError.badRequest(e.message))
         }
 
