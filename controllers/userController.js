@@ -275,6 +275,15 @@ class UserController {
             const {id} = req.user
             email = email.toLowerCase()
             const user = await User.findOne({where: {id}})
+            let candidatePhone
+            if(telephone?.length>0) candidatePhone = await User.findOne({where: {telephone}})
+
+            if (candidateEmail) {
+                return next(ApiError.badRequest('Такой email уже зарегистрирован'))
+            }
+            if (candidatePhone) {
+                return next(ApiError.badRequest('Такой телефон уже зарегистрирован'))
+            }
             let comparePassword = bcrypt.compareSync(password, user.password)
 
             if (!comparePassword && !user.vkId) {
