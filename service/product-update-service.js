@@ -128,12 +128,12 @@ async function updateProduct (pr, manufacturers) {
                     if (pr?.children.length > 0 && !pr.Акция) {
                         published = pr?.children.some(ch => ch.Published !== 0)
                     }
-                    if (pr?.id_родительского > 0 && !pr?.Акция) {
+                    if (pr?.id_родительского > 0) {
                         published = true
                     }
                 } else {
                     if (pr?.children.length > 0) {
-                        published = pr?.children.some(ch => ch.product_in_stock > 0 && ch.published===true)
+                        published = pr?.children.some(ch => ch.product_in_stock > 0)
                     }
 
                 }
