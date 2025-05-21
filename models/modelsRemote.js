@@ -29,7 +29,6 @@ const ProductRemote = sequelize.define('productsRemote', {
     "Развесной пакет": {type: DataTypes.BOOLEAN},
     "Нет штрихкода": {type: DataTypes.BOOLEAN},
     КассаНазвание: {type: DataTypes.STRING},
-    DateLastPrice: {type: DataTypes.DATE},
     PreviousPrice: {type: DataTypes.FLOAT},
     ABC: {type: DataTypes.STRING},
     updatedAt: {type: DataTypes.DATE, allowNull: false, default: Date.now()}
