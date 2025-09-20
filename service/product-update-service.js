@@ -6,7 +6,7 @@ const fs = require("fs");
 const update = async (timeOffset) => {
     const start = Date.now()
     const msSinceEpoch = (new Date()).getTime();
-    const updatedStartTime = (new Date(msSinceEpoch + (1000 * 60 * 60 * 3) - (1000 * 60 * 60 * timeOffset))).toUTCString()
+    const updatedStartTime = (new Date(msSinceEpoch + (1000 * 60 * 60 * 3) - (1000 * 60 * 60 * timeOffset))).toISOString()
     const manufacturersList = await ManufacturersRemote.findAll()
     const manufacturers = new Map(manufacturersList.map(m => {
         return [m["Название производителя"], m.id_производителя]
