@@ -230,67 +230,78 @@ class OrderController {
 
     async createOrderUnauthorized(req, res, next) {
         try {
-            const {basket} = req.body
+            const { basket } = req.body;
+            if (!Array.isArray(basket) || basket.length === 0) {
+                return next(ApiError.badRequest('Basket is empty or invalid'));
+            }
 
-            const accessLink = uuid.v4()
-            let orderNumber = new Date().toISOString()
-            orderNumber = orderNumber.slice(2, 10)+orderNumber.slice(11, 22)
-            orderNumber = orderNumber.replaceAll("-", "").replaceAll(":","").replace(".","")
+            const accessLink = uuid.v4();
+            let orderNumber = new Date()
+                .toISOString()
+                .slice(2, 22)
+                .replace(/[-:.TZ]/g, '');
 
-            await Order.create({
-                    orderAddress: '',
-                    customerName: '',
-                    customerTel: '',
-                    customerEmail: '',
-                    salesSum: 0,
-                    orderDiscount: 0,
-                    discountedSalesSum: 0,
-                    userId: null,
-                    orderNumber,
-                    accessLink
+            const order = await Order.create({
+                orderAddress: '',
+                customerName: '',
+                customerTel: '',
+                customerEmail: '',
+                salesSum: 0,
+                orderDiscount: 0,
+                discountedSalesSum: 0,
+                userId: null,
+                orderNumber,
+                accessLink,
+            });
+
+            let salesSum = 0;
+            let discountSum = 0;
+
+            // Use for...of to handle async correctly
+            for (const b of basket) {
+                const item = await Product.findByPk(b.productId, {
+                    include: [{ model: Product, as: 'parent' }],
+                });
+                if (!item) continue;
+
+                const price = item.price;
+                const discountedPrice = item.discountedPrice > 0 ? item.discountedPrice : price;
+                const sum = discountedPrice * b.qty;
+
+                await OrderItem.create({
+                    productId: item.id,
+                    orderId: order.id,
+                    price,
+                    discountedPrice,
+                    qty: b.qty,
+                    name:
+                        item.productId > 0
+                            ? `${item.parent.title}, ${item.parent.shortDescription}, ${item.title}`
+                            : `${item.title}, ${item.shortDescription}`,
+                    sum,
+                });
+
+                salesSum += price * b.qty;
+                if (item.discountedPrice > 0) {
+                    discountSum += (price - item.discountedPrice) * b.qty;
                 }
-            ).then(async(order) => {
-                let salesSum = 0
-                let discountSum = 0
+            }
 
-                for (const item of basketItems) {
-                    const { product, qty } = item;
-                    const price = product.price;
-                    const discountedPrice = product.discountedPrice > 0 ? product.discountedPrice : price;
-                    const sum = discountedPrice * qty;
+            const discountedSalesSum = salesSum - discountSum;
 
-                    await OrderItem.create({
-                        productId: item.productId,
-                        orderId: order.id,
-                        price,
-                        discountedPrice,
-                        qty,
-                        name:
-                            product.productId > 0
-                                ? `${product.parent.title}, ${product.parent.shortDescription}, ${product.title}`
-                                : `${product.title}, ${product.shortDescription}`,
-                        sum
-                    });
+            await order.update({
+                orderDiscount: discountSum,
+                salesSum,
+                discountedSalesSum,
+            });
 
-                    salesSum += price * qty;
-                    if (product.discountedPrice > 0) {
-                        discountSum += (price - product.discountedPrice) * qty;
-                    }
-                }
-
-                const discountedSalesSum = salesSum - discountSum;
-
-                await Order.update(
-                    { orderDiscount: discountSum, salesSum, discountedSalesSum },
-                    { where: { id: order.id } }
-                );
-                return res.json(order.accessLink)
-            })
+            return res.json(order.accessLink);
         } catch (e) {
-            next(ApiError.badRequest(e.message))
+            console.error(e);
+            next(ApiError.badRequest(e.message));
         }
-
     }
+
 
     async getStatuses(req,res) {
         return res.json(config.orderStatuses)
