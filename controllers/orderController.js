@@ -151,15 +151,17 @@ class OrderController {
 
     async createOrder(req, res, next) {
         try {
-            const {userId} = req.body
-            const user = await User.findByPk(userId)
-            const basket = await Basket.findOne({where: {userId}})
-            const accessLink = uuid.v4()
+            const { userId } = req.body;
+            const user = await User.findByPk(userId);
+            const basket = await Basket.findOne({ where: { userId } });
+            if (!basket) return next(ApiError.badRequest('Basket not found'));
+
+            const accessLink = uuid.v4();
             let orderNumber = new Date().toISOString()
             orderNumber = orderNumber.slice(2, 10)+orderNumber.slice(11, 22)
             orderNumber = orderNumber.replaceAll("-", "").replaceAll(":","").replace(".","")
 
-            await Order.create({
+            const order = await Order.create({
                 orderAddress: user?.address || '',
                 customerName: user?.name || '',
                 customerTel: user?.telephone || '',
@@ -170,41 +172,58 @@ class OrderController {
                 userId,
                 orderNumber,
                 accessLink
+            });
+
+            const basketItems = await BasketProduct.findAll({
+                where: { basketId: basket.id },
+                include: [
+                    {
+                        model: Product,
+                        as: 'product',
+                        include: [{ model: Product, as: 'parent' }]
+                    }
+                ]
+            });
+
+            let salesSum = 0;
+            let discountSum = 0;
+
+            for (const item of basketItems) {
+                const { product, qty } = item;
+                const price = product.price;
+                const discountedPrice = product.discountedPrice > 0 ? product.discountedPrice : price;
+                const sum = discountedPrice * qty;
+
+                await OrderItem.create({
+                    productId: item.productId,
+                    orderId: order.id,
+                    price,
+                    discountedPrice,
+                    qty,
+                    name:
+                        product.productId > 0
+                            ? `${product.parent.title}, ${product.parent.shortDescription}, ${product.title}`
+                            : `${product.title}, ${product.shortDescription}`,
+                    sum
+                });
+
+                salesSum += price * qty;
+                if (product.discountedPrice > 0) {
+                    discountSum += (price - product.discountedPrice) * qty;
+                }
             }
-            ).then(async(order) => {
-                   const basketItems = await BasketProduct.findAll({where: {basketId: basket.id}, include: [
-                        {model: Product, as: 'product', include: [
-                                {model: Product, as: 'parent'}
-                            ]},
-                    ]})
-                let salesSum = 0
-                let discountSum = 0
 
-                await basketItems.forEach(async (item, index, array) => {
-                    const sum = item.product.discountedPrice > 0 ? item.product.discountedPrice * item.qty : item.product.price * item.qty
-                    await OrderItem.create({
-                        productId: item.productId,
-                        orderId: order.id,
-                        price: item.product.price,
-                        discountedPrice: item.product.discountedPrice,
-                        qty: item.qty,
-                        name: item.product.productId > 0 ? `${item.product.parent.title}, ${item.product.parent.shortDescription}, ${item.product.title}` : `${item.product.title}, ${item.product.shortDescription}`,
-                        sum
-                    })
-                    salesSum += item.product.price*item.qty
-                    if(item.product.discountedPrice>0){
-                        discountSum += (item.product.price-item.product.discountedPrice)*item.qty
-                    }
-                    if(index===array.length-1){
-                        const discountedSalesSum = salesSum-discountSum
-                        await Order.update({orderDiscount: discountSum, salesSum, discountedSalesSum}, {where: {id: order.id}})
+            const discountedSalesSum = salesSum - discountSum;
 
-                    }
-                })
-                return res.json(order.accessLink)
-            })
+            await Order.update(
+                { orderDiscount: discountSum, salesSum, discountedSalesSum },
+                { where: { id: order.id } }
+            );
+
+            return res.json(order.accessLink);
         } catch (e) {
-            next(ApiError.badRequest(e.message))
+            console.error(e);
+            next(ApiError.badRequest(e.message));
         }
 
     }
@@ -234,28 +253,37 @@ class OrderController {
                 let salesSum = 0
                 let discountSum = 0
 
-                await basket.forEach(async (b, index, array) => {
-                    const item = await Product.findByPk(b.productId, {include: [{model: Product, as: 'parent'}]})
-                    const sum = item.discountedPrice > 0 ? item.discountedPrice * b.qty : item.price * b.qty
-                    await OrderItem.create({
-                        productId: item.id,
-                        orderId: order.id,
-                        price: item.price,
-                        discountedPrice: item.discountedPrice,
-                        qty: b.qty,
-                        name: item.productId > 0 ? `${item.parent.title}, ${item.parent.shortDescription}, ${item.title}` : `${item.title}, ${item.shortDescription}`,
-                        sum
-                    })
-                    salesSum += item.price*b.qty
-                    if(item.discountedPrice>0){
-                        discountSum += (item.price-item.discountedPrice)*b.qty
-                    }
-                    if(index===array.length-1){
-                        const discountedSalesSum = salesSum-discountSum
-                        await Order.update({orderDiscount: discountSum, salesSum, discountedSalesSum}, {where: {id: order.id}})
+                for (const item of basketItems) {
+                    const { product, qty } = item;
+                    const price = product.price;
+                    const discountedPrice = product.discountedPrice > 0 ? product.discountedPrice : price;
+                    const sum = discountedPrice * qty;
 
+                    await OrderItem.create({
+                        productId: item.productId,
+                        orderId: order.id,
+                        price,
+                        discountedPrice,
+                        qty,
+                        name:
+                            product.productId > 0
+                                ? `${product.parent.title}, ${product.parent.shortDescription}, ${product.title}`
+                                : `${product.title}, ${product.shortDescription}`,
+                        sum
+                    });
+
+                    salesSum += price * qty;
+                    if (product.discountedPrice > 0) {
+                        discountSum += (price - product.discountedPrice) * qty;
                     }
-                })
+                }
+
+                const discountedSalesSum = salesSum - discountSum;
+
+                await Order.update(
+                    { orderDiscount: discountSum, salesSum, discountedSalesSum },
+                    { where: { id: order.id } }
+                );
                 return res.json(order.accessLink)
             })
         } catch (e) {
