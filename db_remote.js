@@ -17,6 +17,15 @@ module.exports = new Sequelize(
             collate: 'utf8_unicode_ci',
             dialectOptions: { collate: 'utf8_unicode_ci' },
             timestamps: false,
+        },
+        pool: {
+            max: 5,
+            min: 0,
+            acquire: 60000,
+            idle: 10000
+        },
+        dialectOptions: {
+            connectTimeout: 60000
         }
     }
 

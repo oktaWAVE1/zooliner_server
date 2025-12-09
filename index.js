@@ -48,7 +48,7 @@ app.use(errorHandler)
 
 
 const productUpdater = setInterval(() => update(2), 1000*60*5)
-const productDailyUpdater = setInterval(() => update(240), 1000*60*60*24)
+const productDailyUpdater = setInterval(() => update(48), 1000*60*60*24)
 const sitemapDailyUpdater = setInterval(() => sitemapGenerator(), 1000*60*60*24)
 const yandexFeedDailyUpdater = setInterval(() => yandexFeedGenerator(), 1000*60*60*24)
 const avitoFeedDailyUpdater = setInterval(() => avitoFeedGenerator(), 1000*60*60*24)
