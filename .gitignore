@@ -4,3 +4,5 @@ models/modelsRemote.js
 logs/*
 node_modules
 package.json
+unzip.py
+static.zip

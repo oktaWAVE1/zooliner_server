@@ -1,0 +1,22 @@
+version: '3.9'
+
+services:
+  app:
+    build: .
+    container_name: zooliner_server_web_api
+    restart: always
+    env_file: .env
+    ports:
+      - "30030:30030"
+    networks:
+      - app_net
+    volumes:
+      - .:/app
+      - ./static:/app/static
+    command: npm run prod_zooliner_server
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  app_net:
+    driver: bridge
